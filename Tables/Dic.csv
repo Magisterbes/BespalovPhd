@@ -1,0 +1,116 @@
+Primary Purpose; While models are often multi-purpose, this property describes the effort&#39s initial primary goal. Not subsequent or ancillary uses. 
+;
+;
+;
+;
+Features; This property group addresses specific features modeling teams have chosen to include in models. 
+Prevention; Features concerned with evaluation of methods and effects of approaches to cancer prevention. 
+Treatment; Features involving the treatment of detected disease, often differentiated by temporal variables (e.g.&#58 calendar year, age) and/or mode of detection. 
+Micro Simulation; Computer models that operate at the level of individuals or smaller entities such as tumors or cells are considered &#39micro simulations&#39. Micro simulations may involve sub-components that are analytical in nature. That is, micro simulations may involve sub-components that are strictly analytical, but the complete model cannot be represented as a closed form equation. 
+;
+;
+;
+;
+Unit of Analysis; This property defines the smallest entity the model is concerned with. While models may aggregate to person or population levels, those aggregations may be generated on the basis of explicit simulation of individual tumors or cells. This property clarifies the lowest level of explicit simulation. 
+BCSC; Breast Cancer Surveillance Consortium\xa0<br/> http&#58//breastscreening.cancer.gov/ 
+SEER; Surveillance, Epidemiology, and End Results <br/> http&#58//seer.cancer.gov/ 
+Linked; A linked data set is a combination of otherwise separate data sets whereby records have been linked via matching of attributes or common identifiers. 
+NCCN; National Comprehensive Cancer Network <br/> http&#58//www.nccn.org/ 
+Stage Shift; Benefit from early detection is realized, in part or in whole, by reduction of stage at time of detection and treatment. 
+Temporal Trends; Treatment benefit may be affected by one or more temporal trends including calendar year, age and/or birth cohort.
+Cure Rate; Benefit is attributed based on a cure/no-cure rate that is advantageous for screen-detected cancers 
+Modality; Benefit varies depending on treatment method, which may in turn depend on dissemination of treatment modality. 
+Estrogen receptor (ER) Status; Treatment benefit is allocated based on estrogen receptor (ER) status 
+Incidence; Outputs concerning in incidence of disease 
+Attendance; Model inputs concerned with screening attendance and the uptake of disseminated screening opportunity. Models that simulate this aspect of screening often employ economic aspects of promotion and human behavior. 
+Dissemination; Model inputs concerned with the availability of specific treatments. For example, treatment availability may depend on calendar year and/or geographic region. 
+Effect; Outputs regarding the effect of screening 
+Precancer; Model inputs associated with the treatment of precancer lesions
+Efficacy; Model inputs concerned with the capacity for beneficial change  in laboratory studies or clinical trials.  
+Observed; The actual percentage of patients still alive at some specified time after diagnosis of cancer. It considers deaths from all causes, cancer or otherwise.  
+Relative; An estimate of the percentage of patients who would be expected to survive the effects of their cancer. 
+Other cause; Inputs concerned with the probability of death at a certain age from causes other than the disease under investigation. 
+Disease-specific; Inputs concerned with the probability of cause of death being due to the disease under investigation vs other general causes.  
+Risk Factor; Inputs concerned with risk factors the model considers specifically as opposed to implicitly in other model inputs.
+Age; Inputs that drive age-based risk in addition to typical age-specific parameters such as incidence and survival 
+Outcomes; Outcomes are the population effects deemed interesting in the context of the interventions or exposures being modeled. Typical outcomes are survival, morbidity, mortality and other such results one would expect to be affected by interventions and trends in risk.\xa0
+Survival; Measurements of time between diagnosis and death. 
+Life years; Measurements of difference of life years  
+Cause-specific Mortality; Cause of death is accounted for, at least in terms of target disease vs other causes.  
+All-cause Mortality; Mortality from any cause is provided 
+;
+;
+;
+;
+;
+;
+Screening; Features concerned with detection of pre-clinical cancer in individuals or sub-populations.  
+Metastases; Features that account for new cancer in non-primary locations after initial diagnosis. 
+Tumor Growth; Models that include the concept of a defined tumor with a defined size that can change over time, possibly influencing detectability and treatability. 
+Biomarker; Models that include generation of marker levels such as tumor-specific antigens separate from tests for those biomarkers.  
+Analytic; Analytic models are mathematical models based on closed form equations that represents a system in terms of logical and quantitative relationships.Software may be employed in automation of calibration and other result generation, but the core model is described in terms of equations not software.  
+WHI PHT; Women\x92s health Initiative (WHI) Postmenopausal Hormone Therapy Trials <br/> http&#58//www.nhlbi.nih.gov/whi/background.htm 
+Other; Other Cancer Registry not listed
+SEER POC; NCI SEER\xa0Patterns of Care <br/> http&#58//appliedresearch.cancer.gov/poc/ 
+NHIS; National Health Interview Surveys <br/> http&#58//www.cdc.gov/nchs/nhis.htm 
+NHANES; National Health and Nutrition Examination Surveys <br/> http&#58//www.cdc.gov/nchs/nhanes.htm 
+EBCTCG; Early Breast Cancer Trialists&#39 Collaborative Group <br/> http&#58//ipdmamg.cochrane.org/early-breast-cancer-trialists-collaborative-group 
+Size at diagnosis; Benefit from early detection is conveyed implicitly based on reduced tumor size at the time of detection and treatment independent from that which may already be accounted for in stage shift benefit.
+Tumor Attributes; Outpus concerned with distribution of certain attributes of tumors. For example, growth rates, diffusion, and treatability. 
+Personal History; Inputs relating only to the individual (not the individual&#39s family)
+Natural History; Results drawn from simulated individual&#39s disease including, onset, transitions to malignancy, stage transitions, metastasis, growth rates etc. 
+Tumor size; Outputs involving measurement of tumor size over time or at specific time points such as clinical or screen diagnosis  
+Test Performance; Outputs tracking the test performance as generated by the model. Can be conditioned on follow up time and censoring, or represent actual (often unobservable for negative tests) performance metrics.  
+State Transition; State transition models posit a set of discrete states that the unit of analysis (typically an individual person) can be in at any time. The conditional probabilities of transitioning between states over a given interval of time are established as model parameters. An individual&#39s longitudinal histories can be generated. Variants of Markov models fall into this category. 
+Two County Study; Two County Trial Data (Sweden) 
+HIP; Health Insurance Plan Study 
+Lead Time; Lead-time is included as a survival benefit 
+QALY; Quality adjusted years of life. 
+Obesity; Inputs concerned with obesity possibly measured by any standard index (e.g. Body Mass Index)
+Demography; Demographic inputs concerned with the simulated population.  
+Cost; Outputs concerned with reporting costs of alternative interventions. 
+Disease; Cancer or precancer 
+WCRS; Wisconsin Cancer Reporting System 
+Recurrence; Features that explicitly allow for cancer to reoccur in the same individual after initial detection and possible treatment. Does not include models that implicitly account for recurrence via long-term survival statistics. 
+Virus; Features that account for a virus (such as HPV) after initial diagnosis
+Macro Simulation; Computer models that operate at the level of populations (i.e. not individuals). Micro simulations may involve sub-components that are strictly analytical, but the complete model cannot be represented as a closed form equation. 
+Dynamic Transmission;" ""Dynamic Transmission models direct and indirect effects from communicable diseases that cant be effectively modeled through other methods. Dynamic Transmission models in the cervical sites model the risk of HPV infection depending on the number of new partners, the prevalence of HPV in the population, and the probability of HPV transmission per susceptible-infected partnership. "")"
+FCR; Finnish Cancer Registry <br/> http&#58//www.cancer.fi/syoparekisteri/en/ 
+Smoking History; Inputs concerned with factors that may influence incidence or treatment of disease. For example, smoking history, obesity, diet.
+HPV Infection; Presence of Human Papillomavirus (HPV) Infection 
+Smoking; Outputs pertaining to the patterns of smoking in the simulated population, possibly in the context of simulated interventions. 
+Temporal trends; Temporal trends of disease
+Vaccination effect; Effect from vaccination on population, including proportion of cervical disease attributable to vaccination HPV types, vaccination coverage, and duration of vaccine-induced immunity 
+Agent-based; An agent-based model is a micro simulation that allows for interaction between simulated entities.For example, smoking behavior in a simulated individual may be influenced by the behavior of other simulated individuals.  
+PROSPR; Population-based Research Optimizing Screening through Personalized Regimens <br/> http&#58//healthcaredelivery.cancer.gov/prospr/ 
+KPNC; Kaiser Permanente Northern California 
+NMHPVPR; New Mexico HPV Pap Registry <br/> http&#58//hpvprevention.unm.edu/NMHPVPR/ 
+BRFSS; Behavioral Risk Factor Surveillance System <br/> http://www.cdc.gov/brfss/ 
+NHDS; National Hospital Discharge Survey <br/> http://www.cdc.gov/nchs/nhds/ 
+Other Conditions; Other conditions other than precancer and cancer (such as HPV Infection)
+Risk Adaptive Factors; Inputs to inform modification of regular screen schedules (test interval, thresholds etc) based on test results (eg marker levels).  
+Incidental Finding Surveillance; Certain pre-cancerous findings during screening may trigger non-routine surveillance for which attendance parameters may be an input to the model. For example, post-adenoma follow-up for Colorectal cancer, or follow-up for Esophageal Adenocarcinoma (EAC) after diagnosis of Barrett&#39s Esophagus (BE). 
+Quadrivalent; Quadrivalent (4v) vaccine 
+Bivalent; Bivalent (2v) vaccine 
+Nonavalent; Nonavalent (9v) vaccine 
+Pregnancy; Pregnancy outcomes from Cervical intraepithelial neoplasia (CIN) treatment
+PALEBA; Nationwide network and registry of histo- and cytopathology in the Netherlands\n 
+NCR; Netherlands Cancer Registry 
+POBASCAM; Population Based Screening Study Amsterdam <br/> http&#58//www.ncbi.nlm.nih.gov/pubmed/15054873 
+NSW-CCR; New South Whales (NSW) Central Cancer Registry (CCR) <br/> http&#58//www.cancerinstitute.org.au/data-and-statistics/cancer-registries/nsw-cancer-registry
+ACD; Australian Cancer Database <br/> http&#58//www.aihw.gov.au/australian-cancer-database/
+NMD; National Mortality Database <br/> http&#58//www.aihw.gov.au/deaths/aihw-deaths-data/#nmd
+VCCR; Victorian Cervical Cytology Register
+ASHR; Australian Study of Health and Relationships <br/> http://www.ashr.edu.au/
+SEER-Medicare; The SEER Medicare data consists of a linkage of the clinical data collected by the SEER registries with claims for health services collected by Medicare for its beneficiaries. 
+National Polyp Study; National Polyp Study 
+Cell Dynamics; Outputs providing data on simulated cells. For example&#58 cell kinetics, Temporal trends on cell kinetics, spatial growth of High grade dysplasia (HGD) and Esophageal Adenocarcinoma (EAC) clones 
+NHS; Nurses&#39 Health Studies <br/> http://www.nurseshealthstudy.org/ 
+HPFS; Health Professionals&#39 Follow-up Study <br/> https://www.hsph.harvard.edu/hpfs/ 
+PLCO; Prostate, Lung, Colorectal, and Ovarian trial<br/> http&#58//prevention.cancer.gov/plco 
+NLST; National Lung Screening Trial <br/> http&#58//www.cancer.gov/clinicaltrials/noteworthy-trials/nlst
+CPS II; Cancer Prevention Study II <br/> http&#58//www.cancer.org/research/researchtopreventcancer/currentcancerpreventionstudies/cancer-prevention-study 
+CPS I; Cancer Prevention Study I 
+ERSPC; European Randomized Study of Screening for Prostate Cancer<br/> http&#58//www.erspc-media.org/ 
+PCPT; Prostate Cancer Prevention Trial<br/> http&#58//www.cancer.gov/clinicaltrials/noteworthy-trials/pcpt/Page1 
+SPCG-4; Scandinavian Prostate Cancer Group-4 randomized trial <br/> http&#58//www.ncbi.nlm.nih.gov/pubmed/23271778 
