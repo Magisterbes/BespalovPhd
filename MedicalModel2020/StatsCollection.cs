@@ -81,7 +81,7 @@ namespace MedicalModel
                     && p.IncidenceAge + p.DateBirth <= Environment.CurrentDate 
                     && p.CurrentCancer.DiagnoseStage != -1)
                 {
-                    this.DiagnoseStagesDistribution[p.CurrentCancer.DiagnoseStage]++;
+                    this.DiagnoseStagesDistribution[p.CurrentCancer.DiagnoseStage]++; 
                 }
 
                 if(p.CurrentCancer != null && p.CurrentCancer.ScreeningStage != -1)
