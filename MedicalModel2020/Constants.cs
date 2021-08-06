@@ -145,6 +145,12 @@ namespace MedicalModel
                     {
                         double[] doubles = spl[1].Split(',').Select(Double.Parse).ToArray();
 
+                        //Three times more often
+                        if(spl[0] == "InitAgeDistMale" || spl[0] == "InitAgeDistFemale")
+                        {
+                            doubles = doubles.Select(a => a *3).ToArray();
+                        }
+
                         if (spl[0] == "MaleAging" || spl[0] == "FemaleAging")
                         {
 

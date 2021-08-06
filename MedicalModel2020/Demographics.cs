@@ -66,7 +66,7 @@ namespace MedicalModel
 
         private static void GetIncidence(Distiribution distr, Person p)
         {
-            if (distr.NormalizationCoef < Tech.NextDouble(false) || p.Age>99)
+            if (distr.NormalizationCoef < Tech.NextDouble(false) || p.Age>98)
             {
                 p.IncidenceAge = -1;
                 return;

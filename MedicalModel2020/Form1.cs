@@ -45,6 +45,7 @@ namespace MedicalModel
             DrawDiagnose();
             DrawMortality();
             DrawSaved();
+            DrawSurvival();
 
             Console.WriteLine("{0}", (d - DateTime.Now).Seconds);
         }
@@ -75,7 +76,7 @@ namespace MedicalModel
 
         void DrawIncidence()
         {
-            var data = Environment.Stats.IncidenceRates.Select(a=>a*100000).ToArray() ;
+            var data = Environment.Stats.AggStats[AggStatsType.IncidenceRates].Select(a=>a*100000).ToArray() ;
             var x = Enumerable.Range(0, 95).Select(a => (double)a).ToArray();
             IncChart.Series.Clear();
 
@@ -90,8 +91,8 @@ namespace MedicalModel
 
         void DrawMortality()
         {
-            var data = Environment.Stats.MortalityRates.Select(a => a * 100000).ToArray();
-            var screen = Environment.Stats.ScreenedMortalityRates.Select(a => a * 100000).ToArray();
+            var data = Environment.Stats.AggStats[AggStatsType.MortalityRates].Select(a => a * 100000).ToArray();
+            var screen = Environment.Stats.AggStats[AggStatsType.ScreenedMortalityRates].Select(a => a * 100000).ToArray();
             var x = Enumerable.Range(0, 95).Select(a => (double)a).ToArray();
             MortChart.Series.Clear();
 
@@ -107,8 +108,8 @@ namespace MedicalModel
 
         void DrawDiagnose()
         {
-            var data = Environment.Stats.DiagnoseStagesDistribution;
-            var screen = Environment.Stats.ScreeningStagesDistribution;
+            var data = Environment.Stats.AggStats[AggStatsType.DiagnoseStagesDistribution];
+            var screen = Environment.Stats.AggStats[AggStatsType.ScreeningStagesDistribution];
             var dsm = data.Sum();
             var ssm = screen.Sum();
             var fdata = data.Select(a => (double)a / (double)dsm).ToArray();
@@ -135,23 +136,24 @@ namespace MedicalModel
 
             for (int j = 0; j < x.Length; j++)
             {
-                ThisChart.Series[Title].Points.AddXY(j, data[j]);
+                ThisChart.Series[Title].Points.AddXY(x[j], data[j]);
             }
             ThisChart.Series[Title].BorderWidth = 2;
+            ThisChart.ChartAreas[0].AxisX.Minimum = 0;
         }
 
         private void ChartIt(string Title, SeriesChartType ctype, Chart ThisChart, double[] data)
         {
 
-            var x = Enumerable.Range(0, Environment.Params.UnrealLifeLength).Select(a=>(double)a).ToArray();
+            var x = Enumerable.Range(0, data.Length).Select(a=>(double)a).ToArray();
 
             ChartIt(Title, ctype, ThisChart, data, x);
         }
 
         void DrawSaved()
         {
-            var pep = Environment.Stats.PeopleSaved;
-            var yer = Environment.Stats.YearsSaved;
+            var pep = Environment.Stats.AggStats[AggStatsType.PeopleSaved];
+            var yer = Environment.Stats.AggStats[AggStatsType.YearsSaved];
 
             var data = pep.Zip(yer, (p, y) => (double)y / (double)p).ToArray();
 
@@ -164,6 +166,25 @@ namespace MedicalModel
 
             SaveChart.ChartAreas[0].AxisX.Title = "Age";
             SaveChart.ChartAreas[0].AxisY.Title = "Saved years";
+        }
+
+        void DrawSurvival()
+        {
+            var cancer = Tech.CutByZero(Environment.Stats.AggStats[AggStatsType.Survival]);
+            var screening = Tech.CutByZero(Environment.Stats.AggStats[AggStatsType.SurvivalScreening]);
+            var x = Enumerable.Range(0, screening.Length).Select(a => (double)a+0.1).ToArray();
+
+            SurvChart.Series.Clear();
+
+            var title = "No Screening";
+            ChartIt(title, SeriesChartType.StepLine, SurvChart, cancer);
+
+            title = "Screening";
+            ChartIt(title, SeriesChartType.StepLine, SurvChart, screening,x);
+
+
+            SurvChart.ChartAreas[0].AxisX.Title = "Years";
+            SurvChart.ChartAreas[0].AxisY.Title = "Percent surviving";
         }
     }
 }

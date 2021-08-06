@@ -122,7 +122,8 @@ namespace MedicalModel
 
         static bool CheckScreening(Person p)
         {
-            if (p.Age >= Environment.Params.StartAge &&
+            if (!(p.CurrentCancer != null && p.CurrentCancer.ScreeningAge != -1 )&&
+                p.Age >= Environment.Params.StartAge &&
                 p.Age <= Environment.Params.FinishAge &&
                 Tech.NextDouble(true)< Environment.Params.ParticipationRate)
                 return true;

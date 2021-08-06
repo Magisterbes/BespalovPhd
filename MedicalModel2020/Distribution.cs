@@ -50,7 +50,7 @@ namespace MedicalModel
             for (int i = 0; i < CDF.Length; i++)
             {
                 if (rand < CDF[i])
-                    return i;
+                    return i-1;
             }
 
             return -1;

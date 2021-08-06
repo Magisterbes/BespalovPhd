@@ -16,30 +16,49 @@ namespace MedicalModel
         AtRisk
     }
 
+    public enum AggStatsType
+    {
+        DiagnoseStagesDistribution,
+        ScreeningStagesDistribution,
+        PeopleSaved,
+        YearsSaved,
+        FalsePositives,
+        MortalityRates,
+        ScreenedMortalityRates,
+        IncidenceRates,
+        Survival,
+        SurvivalScreening
+    }
+
     class StatsCollection
     {
-        public Dictionary<StatsType,Dictionary<int,int[]>> Stats;
-        public int[] DiagnoseStagesDistribution;
-        public int[] ScreeningStagesDistribution;
-        public int[] PeopleSaved;
-        public int[] YearsSaved;
-        public int[] FalsePositives;
-        public double[] MortalityRates;
-        public double[] ScreenedMortalityRates;
-        public double[] IncidenceRates;
+        public Dictionary<StatsType, Dictionary<int, int[]>> Stats;
+        public Dictionary<AggStatsType, double[]> AggStats;
+        private Dictionary<AggStatsType, int> AggInits;
 
         public StatsCollection(int LastYear)
         {
 
-            this.DiagnoseStagesDistribution = new int[Environment.Params.CancerTransitions.Length];
-            this.ScreeningStagesDistribution = new int[Environment.Params.CancerTransitions.Length];
-            this.PeopleSaved = new int[Environment.Params.UnrealLifeLength];
-            this.YearsSaved = new int[Environment.Params.UnrealLifeLength];
-            this.FalsePositives = new int[Environment.Params.YearsToSimulate];
-            this.MortalityRates = new double[Environment.Params.YearsToSimulate];
-            this.ScreenedMortalityRates = new double[Environment.Params.YearsToSimulate];
-            this.IncidenceRates = new double[Environment.Params.YearsToSimulate];
+            AggInits = new Dictionary<AggStatsType, int>
+            {
+                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.CancerTransitions.Length},
+                {AggStatsType.ScreeningStagesDistribution, Environment.Params.CancerTransitions.Length},
+                {AggStatsType.PeopleSaved, Environment.Params.UnrealLifeLength},
+                {AggStatsType.YearsSaved, Environment.Params.UnrealLifeLength},
+                {AggStatsType.FalsePositives, Environment.Params.YearsToSimulate},
+                {AggStatsType.MortalityRates, Environment.Params.YearsToSimulate},
+                {AggStatsType.ScreenedMortalityRates, Environment.Params.YearsToSimulate},
+                {AggStatsType.IncidenceRates, Environment.Params.YearsToSimulate},
+                {AggStatsType.Survival, 100},
+                {AggStatsType.SurvivalScreening, 100}
+             };
 
+            this.AggStats = new Dictionary<AggStatsType, double[]>();
+            foreach (var stype in Enum.GetValues(typeof(AggStatsType)))
+            {
+                this.AggStats[(AggStatsType)stype] = Enumerable.Repeat((double)0, AggInits[(AggStatsType)stype]).ToArray();
+
+            }
 
             this.Stats = new Dictionary<StatsType, Dictionary<int, int[]>>();
             foreach (var stype in Enum.GetValues(typeof(StatsType)))
@@ -53,22 +72,20 @@ namespace MedicalModel
 
         }
 
-        private static object locker = new object();
-
         public void UpdateStats(StatsType stype, int year, int age)
         {
 
-            //lock (locker)
-            //{
+            lock (Stats)
+            {
                 this.Stats[stype][year][age]++;
-            //}
+            }
         }
         public void UpdateStats(StatsType stype, int year, int age, int value)
         {
-            //lock (locker)
-            //{
+            lock (Stats)
+            {
                 this.Stats[stype][year][age] += value;
-            //}
+            }
         }
 
         public void GatherStats()
@@ -76,23 +93,28 @@ namespace MedicalModel
             foreach (var p in Environment.Population)
             {
 
-                if(p.IncidenceAge != -1 
+                if (p.IncidenceAge != -1
                     && p.IncidenceAge < p.NaturalDeathAge
-                    && p.IncidenceAge + p.DateBirth <= Environment.CurrentDate 
+                    && p.IncidenceAge + p.DateBirth <= Environment.CurrentDate
                     && p.CurrentCancer.DiagnoseStage != -1)
                 {
-                    this.DiagnoseStagesDistribution[p.CurrentCancer.DiagnoseStage]++;
+                    AggStats[AggStatsType.DiagnoseStagesDistribution][p.CurrentCancer.DiagnoseStage]++;
                 }
 
-                if(p.CurrentCancer != null && p.CurrentCancer.ScreeningStage != -1)
+
+                if (p.CurrentCancer != null && p.CurrentCancer.ScreeningStage != -1)
                 {
-                    this.ScreeningStagesDistribution[p.CurrentCancer.ScreeningStage]++;
+                    AggStats[AggStatsType.ScreeningStagesDistribution][p.CurrentCancer.ScreeningStage]++;
+
                 }
 
-                if(p.DeathCause == DeathStatus.NaturalSavedByScreening)
+
+                CalcSurvivalParallel(p);
+
+                if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
                 {
-                    this.PeopleSaved[p.IncidenceAge]++;
-                    this.YearsSaved[p.IncidenceAge]+=p.NaturalDeathAge - p.CancerDeathAge;
+                    AggStats[AggStatsType.PeopleSaved][p.IncidenceAge]++;
+                    AggStats[AggStatsType.YearsSaved][p.IncidenceAge] += p.NaturalDeathAge - p.CancerDeathAge;
                 }
 
                 if (p.IsAlive
@@ -103,26 +125,30 @@ namespace MedicalModel
                     && p.CancerDeathAge <= p.Age
                     )
                 {
-                    this.PeopleSaved[p.IncidenceAge]++;
-                    this.YearsSaved[p.IncidenceAge] += p.Age - p.CancerDeathAge;
+                    AggStats[AggStatsType.PeopleSaved][p.IncidenceAge]++;
+                    AggStats[AggStatsType.YearsSaved][p.IncidenceAge] += p.Age - p.CancerDeathAge;
                 }
 
             }
 
-            MortalityRates = MakeRates(Stats[StatsType.CancerMortality], Stats[StatsType.AtRisk]);
-            ScreenedMortalityRates = MakeRates(Stats[StatsType.CancerScreeningMortality], Stats[StatsType.AtRisk]);
-            IncidenceRates = MakeRates(Stats[StatsType.Inicdence], Stats[StatsType.AtRisk]);
+            AggStats[AggStatsType.MortalityRates] = MakeRates(Stats[StatsType.CancerMortality], Stats[StatsType.AtRisk]);
+            AggStats[AggStatsType.ScreenedMortalityRates] = MakeRates(Stats[StatsType.CancerScreeningMortality], Stats[StatsType.AtRisk]);
+            AggStats[AggStatsType.IncidenceRates] = MakeRates(Stats[StatsType.Inicdence], Stats[StatsType.AtRisk]);
+
+
+            AggStats[AggStatsType.SurvivalScreening] = AggStats[AggStatsType.SurvivalScreening].Select(a => 100 * a / AggStats[AggStatsType.SurvivalScreening][0]).ToArray();
+            AggStats[AggStatsType.Survival] = AggStats[AggStatsType.Survival].Select(a => 100 * a / AggStats[AggStatsType.Survival][0]).ToArray();
 
         }
 
-        public double[] MakeRates(Dictionary<int,int[]> Data, Dictionary<int, int[]> Pop)
+        public double[] MakeRates(Dictionary<int, int[]> Data, Dictionary<int, int[]> Pop)
         {
             var data = FullSum(Data);
             var pop = FullSum(Pop);
 
             return data.Zip(pop, (d, p) => d / p).ToArray();
         }
-        
+
 
         private double[] FullSum(Dictionary<int, int[]> Data)
         {
@@ -137,6 +163,71 @@ namespace MedicalModel
 
             return res;
         }
+
+        private void CalcSurvival(Person p)
+        {
+
+
+            if (p.DeathCause == DeathStatus.NaturalSavedByScreening ||
+                p.DeathCause == DeathStatus.NaturalCured ||
+                p.DeathCause == DeathStatus.Cancer)
+            {
+
+                if (p.CurrentCancer.ScreeningAge != -1)
+                {
+                    if (p.CurrentCancer.IsScreeningCured)
+                        itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
+                    else
+                        itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
+                }
+                else
+                {
+                    if (p.CurrentCancer.IsCured)
+                        itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.Survival);
+                    else
+                        itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.Survival);
+                }
+                
+                
+            }
+
+        }
+
+        private void CalcSurvivalParallel(Person p)
+        {
+
+
+            if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
+            {
+                itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
+                itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.Survival);
+            }
+
+
+            if (p.DeathCause == DeathStatus.Cancer)
+            {
+                itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
+                itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.Survival);
+            }
+
+
+            if (p.DeathCause == DeathStatus.NaturalCured)
+            {
+                itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
+                itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.Survival);
+            }
+
+        }
+
+        private void itterSurv(int beg, int fin, AggStatsType astype)
+        {
+            AggStats[astype][0]++;
+            for (int i = 0; i < fin - beg; i++)
+            {
+                AggStats[astype][i+1] += 1.0;
+            }
+        }
+        
     }
 
 

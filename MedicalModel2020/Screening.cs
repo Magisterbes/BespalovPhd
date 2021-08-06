@@ -18,7 +18,7 @@ namespace MedicalModel
             {
                 if(Tech.CheckByProb(FP) == 1)
                 {
-                    Environment.Stats.FalsePositives[Environment.CurrentDate]++;
+                    Environment.Stats.AggStats[AggStatsType.FalsePositives][Environment.CurrentDate]++;
                 }
             }
             else

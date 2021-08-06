@@ -43,6 +43,9 @@
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.Demo = new System.Windows.Forms.TabPage();
             this.DemoChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -52,6 +55,8 @@
             this.DiagChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.Mort = new System.Windows.Forms.TabPage();
             this.MortChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.Surv = new System.Windows.Forms.TabPage();
+            this.SurvChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.Saved = new System.Windows.Forms.TabPage();
             this.SaveChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabControl1.SuspendLayout();
@@ -63,6 +68,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.DiagChart)).BeginInit();
             this.Mort.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MortChart)).BeginInit();
+            this.Surv.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.SurvChart)).BeginInit();
             this.Saved.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SaveChart)).BeginInit();
             this.SuspendLayout();
@@ -73,20 +80,24 @@
             this.tabControl1.Controls.Add(this.Incid);
             this.tabControl1.Controls.Add(this.Diag);
             this.tabControl1.Controls.Add(this.Mort);
+            this.tabControl1.Controls.Add(this.Surv);
             this.tabControl1.Controls.Add(this.Saved);
-            this.tabControl1.Location = new System.Drawing.Point(22, 12);
+            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.Location = new System.Drawing.Point(0, 0);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1252, 612);
+            this.tabControl1.Size = new System.Drawing.Size(1537, 826);
             this.tabControl1.TabIndex = 2;
             // 
             // Demo
             // 
             this.Demo.Controls.Add(this.DemoChart);
-            this.Demo.Location = new System.Drawing.Point(4, 22);
+            this.Demo.Location = new System.Drawing.Point(4, 29);
+            this.Demo.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Demo.Name = "Demo";
-            this.Demo.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.Demo.Size = new System.Drawing.Size(1244, 586);
+            this.Demo.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Demo.Size = new System.Drawing.Size(1529, 793);
             this.Demo.TabIndex = 0;
             this.Demo.Text = "Demogaphics";
             this.Demo.UseVisualStyleBackColor = true;
@@ -95,25 +106,28 @@
             // 
             chartArea1.Name = "ChartArea1";
             this.DemoChart.ChartAreas.Add(chartArea1);
+            this.DemoChart.Dock = System.Windows.Forms.DockStyle.Fill;
             legend1.Name = "Legend1";
             this.DemoChart.Legends.Add(legend1);
-            this.DemoChart.Location = new System.Drawing.Point(19, 6);
+            this.DemoChart.Location = new System.Drawing.Point(4, 5);
+            this.DemoChart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.DemoChart.Name = "DemoChart";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.DemoChart.Series.Add(series1);
-            this.DemoChart.Size = new System.Drawing.Size(1195, 560);
+            this.DemoChart.Size = new System.Drawing.Size(1521, 783);
             this.DemoChart.TabIndex = 1;
             this.DemoChart.Text = "chart1";
             // 
             // Incid
             // 
             this.Incid.Controls.Add(this.IncChart);
-            this.Incid.Location = new System.Drawing.Point(4, 22);
+            this.Incid.Location = new System.Drawing.Point(4, 29);
+            this.Incid.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Incid.Name = "Incid";
-            this.Incid.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.Incid.Size = new System.Drawing.Size(1244, 586);
+            this.Incid.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Incid.Size = new System.Drawing.Size(1529, 793);
             this.Incid.TabIndex = 2;
             this.Incid.Text = "Incidence";
             this.Incid.UseVisualStyleBackColor = true;
@@ -122,25 +136,28 @@
             // 
             chartArea2.Name = "ChartArea1";
             this.IncChart.ChartAreas.Add(chartArea2);
+            this.IncChart.Dock = System.Windows.Forms.DockStyle.Fill;
             legend2.Name = "Legend1";
             this.IncChart.Legends.Add(legend2);
-            this.IncChart.Location = new System.Drawing.Point(21, 17);
+            this.IncChart.Location = new System.Drawing.Point(4, 5);
+            this.IncChart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.IncChart.Name = "IncChart";
             series2.ChartArea = "ChartArea1";
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             this.IncChart.Series.Add(series2);
-            this.IncChart.Size = new System.Drawing.Size(1173, 532);
+            this.IncChart.Size = new System.Drawing.Size(1521, 783);
             this.IncChart.TabIndex = 2;
             this.IncChart.Text = "chart1";
             // 
             // Diag
             // 
             this.Diag.Controls.Add(this.DiagChart);
-            this.Diag.Location = new System.Drawing.Point(4, 22);
+            this.Diag.Location = new System.Drawing.Point(4, 29);
+            this.Diag.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Diag.Name = "Diag";
-            this.Diag.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.Diag.Size = new System.Drawing.Size(1244, 586);
+            this.Diag.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Diag.Size = new System.Drawing.Size(1529, 793);
             this.Diag.TabIndex = 1;
             this.Diag.Text = "Diagnose";
             this.Diag.UseVisualStyleBackColor = true;
@@ -149,25 +166,28 @@
             // 
             chartArea3.Name = "ChartArea1";
             this.DiagChart.ChartAreas.Add(chartArea3);
+            this.DiagChart.Dock = System.Windows.Forms.DockStyle.Fill;
             legend3.Name = "Legend1";
             this.DiagChart.Legends.Add(legend3);
-            this.DiagChart.Location = new System.Drawing.Point(16, 6);
+            this.DiagChart.Location = new System.Drawing.Point(4, 5);
+            this.DiagChart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.DiagChart.Name = "DiagChart";
             series3.ChartArea = "ChartArea1";
             series3.Legend = "Legend1";
             series3.Name = "Series1";
             this.DiagChart.Series.Add(series3);
-            this.DiagChart.Size = new System.Drawing.Size(1198, 556);
+            this.DiagChart.Size = new System.Drawing.Size(1521, 783);
             this.DiagChart.TabIndex = 2;
             this.DiagChart.Text = "chart1";
             // 
             // Mort
             // 
             this.Mort.Controls.Add(this.MortChart);
-            this.Mort.Location = new System.Drawing.Point(4, 22);
+            this.Mort.Location = new System.Drawing.Point(4, 29);
+            this.Mort.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Mort.Name = "Mort";
-            this.Mort.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.Mort.Size = new System.Drawing.Size(1244, 586);
+            this.Mort.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Mort.Size = new System.Drawing.Size(1529, 793);
             this.Mort.TabIndex = 3;
             this.Mort.Text = "Mortality";
             this.Mort.UseVisualStyleBackColor = true;
@@ -176,52 +196,87 @@
             // 
             chartArea4.Name = "ChartArea1";
             this.MortChart.ChartAreas.Add(chartArea4);
+            this.MortChart.Dock = System.Windows.Forms.DockStyle.Fill;
             legend4.Name = "Legend1";
             this.MortChart.Legends.Add(legend4);
-            this.MortChart.Location = new System.Drawing.Point(25, 20);
+            this.MortChart.Location = new System.Drawing.Point(4, 5);
+            this.MortChart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MortChart.Name = "MortChart";
             series4.ChartArea = "ChartArea1";
             series4.Legend = "Legend1";
             series4.Name = "Series1";
             this.MortChart.Series.Add(series4);
-            this.MortChart.Size = new System.Drawing.Size(1173, 532);
+            this.MortChart.Size = new System.Drawing.Size(1521, 783);
             this.MortChart.TabIndex = 3;
             this.MortChart.Text = "chart1";
+            // 
+            // Surv
+            // 
+            this.Surv.Controls.Add(this.SurvChart);
+            this.Surv.Location = new System.Drawing.Point(4, 29);
+            this.Surv.Name = "Surv";
+            this.Surv.Size = new System.Drawing.Size(1529, 793);
+            this.Surv.TabIndex = 5;
+            this.Surv.Text = "Survival curves";
+            this.Surv.UseVisualStyleBackColor = true;
+            // 
+            // SurvChart
+            // 
+            chartArea5.Name = "ChartArea1";
+            this.SurvChart.ChartAreas.Add(chartArea5);
+            this.SurvChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend5.Name = "Legend1";
+            this.SurvChart.Legends.Add(legend5);
+            this.SurvChart.Location = new System.Drawing.Point(0, 0);
+            this.SurvChart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.SurvChart.Name = "SurvChart";
+            this.SurvChart.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            series5.ChartArea = "ChartArea1";
+            series5.Legend = "Legend1";
+            series5.Name = "Series1";
+            this.SurvChart.Series.Add(series5);
+            this.SurvChart.Size = new System.Drawing.Size(1529, 793);
+            this.SurvChart.TabIndex = 5;
+            this.SurvChart.Text = "Survival";
             // 
             // Saved
             // 
             this.Saved.Controls.Add(this.SaveChart);
-            this.Saved.Location = new System.Drawing.Point(4, 22);
+            this.Saved.Location = new System.Drawing.Point(4, 29);
+            this.Saved.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Saved.Name = "Saved";
-            this.Saved.Padding = new System.Windows.Forms.Padding(3);
-            this.Saved.Size = new System.Drawing.Size(1244, 586);
+            this.Saved.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Saved.Size = new System.Drawing.Size(1529, 793);
             this.Saved.TabIndex = 4;
             this.Saved.Text = "Saved years by incidence age";
             this.Saved.UseVisualStyleBackColor = true;
             // 
             // SaveChart
             // 
-            chartArea5.Name = "ChartArea1";
-            this.SaveChart.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.SaveChart.Legends.Add(legend5);
-            this.SaveChart.Location = new System.Drawing.Point(36, 27);
+            chartArea6.Name = "ChartArea1";
+            this.SaveChart.ChartAreas.Add(chartArea6);
+            this.SaveChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend6.Name = "Legend1";
+            this.SaveChart.Legends.Add(legend6);
+            this.SaveChart.Location = new System.Drawing.Point(4, 5);
+            this.SaveChart.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.SaveChart.Name = "SaveChart";
             this.SaveChart.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            series5.ChartArea = "ChartArea1";
-            series5.Legend = "Legend1";
-            series5.Name = "Series1";
-            this.SaveChart.Series.Add(series5);
-            this.SaveChart.Size = new System.Drawing.Size(1173, 532);
+            series6.ChartArea = "ChartArea1";
+            series6.Legend = "Legend1";
+            series6.Name = "Series1";
+            this.SaveChart.Series.Add(series6);
+            this.SaveChart.Size = new System.Drawing.Size(1521, 783);
             this.SaveChart.TabIndex = 4;
             this.SaveChart.Text = "Saved years";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(856, 456);
+            this.ClientSize = new System.Drawing.Size(1537, 826);
             this.Controls.Add(this.tabControl1);
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "Form1";
             this.Text = "Form1";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -234,6 +289,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.DiagChart)).EndInit();
             this.Mort.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.MortChart)).EndInit();
+            this.Surv.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.SurvChart)).EndInit();
             this.Saved.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.SaveChart)).EndInit();
             this.ResumeLayout(false);
@@ -253,6 +310,8 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart MortChart;
         private System.Windows.Forms.TabPage Saved;
         private System.Windows.Forms.DataVisualization.Charting.Chart SaveChart;
+        private System.Windows.Forms.TabPage Surv;
+        private System.Windows.Forms.DataVisualization.Charting.Chart SurvChart;
     }
 }
 

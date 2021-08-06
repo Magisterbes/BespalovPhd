@@ -20,7 +20,7 @@ namespace MedicalModel
             StageTrans = new List<Exponential>();
             for (int i = 0; i < Environment.Params.CancerTransitions.Length; i++)
             {
-                StageTrans.Add(new Exponential(1.1/Environment.Params.CancerTransitions[i]));
+                StageTrans.Add(new Exponential(1/Environment.Params.CancerTransitions[i]));
             }
 
             var testIdx = Environment.Params.TestParameters.ToList().IndexOf(Environment.Params.SelectedTest);
@@ -30,6 +30,25 @@ namespace MedicalModel
 
         }
 
+
+        public static double[] CutByZero(double[] input)
+        {
+            var ldata = new List<double>();
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    ldata.Add(input[i]);
+                }
+            }
+
+            return ldata.ToArray();
+        }
         public static double ExpSample(Exponential exp)
         {
             return Math.Round(exp.Sample());
@@ -94,10 +113,10 @@ namespace MedicalModel
             {
                 double output;
 
-                //lock (locker)
-                //{
+                lock (locker)
+                {
                     output = Rnd.NextDouble();
-                //}
+                }
 
                 return output;
 

@@ -17,6 +17,7 @@ public enum DeathStatus
     Natural,
     Cancer,
     NaturalSavedByScreening,
+    NaturalCured,
     Alive,
 
 }
@@ -83,7 +84,7 @@ namespace MedicalModel
                     && CancerDeathAge <= Age
                     && CurrentCancer.IsCured)
                 {
-                    return DeathStatus.Natural;
+                    return DeathStatus.NaturalCured;
                 }
 
                 if (CurrentCancer != null 
