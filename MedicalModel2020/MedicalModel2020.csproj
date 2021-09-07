@@ -34,6 +34,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LibOptimization, Version=1.12.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\LibOptimization.1.12.4\lib\net46\LibOptimization.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>packages\MathNet.Numerics.3.5.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
@@ -52,12 +55,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Optimization\AdjustObjectiveFunction.cs" />
     <Compile Include="Cancer.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Distribution.cs" />
     <Compile Include="Screening.cs" />
     <Compile Include="Demographics.cs" />
+    <Compile Include="Splash\Waitbar.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Splash\Waitbar.Designer.cs" />
+    <Compile Include="Splash\SplashForm.cs" />
     <Compile Include="StatsCollection.cs" />
     <Compile Include="Medical.cs" />
     <Compile Include="Factor.cs" />
@@ -70,6 +79,7 @@
     <Compile Include="Person.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Optimization\AdjustParams.cs" />
     <Compile Include="Tech.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -83,6 +93,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Splash\Waitbar.resx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

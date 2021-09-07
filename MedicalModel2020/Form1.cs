@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -28,26 +24,9 @@ namespace MedicalModel
         public Form1()
         {
             InitializeComponent();
-            var d = DateTime.Now;
 
             Environment.Init("parameters.txt");
-
-            for (int i = 0; i < Environment.Params.YearsToSimulate-1; i++)
-            {
-                Environment.CurrentDate++;
-            }
-
-            Environment.Stats.GatherStats();
-
-
-            DrawDemography();
-            DrawIncidence();
-            DrawDiagnose();
-            DrawMortality();
-            DrawSaved();
-            DrawSurvival();
-
-            Console.WriteLine("{0}", (d - DateTime.Now).Seconds);
+            PrintParams();
         }
 
         void DrawDemography()
@@ -185,6 +164,90 @@ namespace MedicalModel
 
             SurvChart.ChartAreas[0].AxisX.Title = "Years";
             SurvChart.ChartAreas[0].AxisY.Title = "Percent surviving";
+        }
+
+        private void bSim_Click(object sender, EventArgs e)
+        {
+            var d = DateTime.Now;
+
+            SplashUtility<Waitbar>.Show();
+            Environment.CurrentDate = 0;
+            AddLog("Simulation started.");
+            for (int i = 0; i < Environment.Params.YearsToSimulate - 1; i++)
+            {
+                Environment.CurrentDate++;
+                SplashUtility<Waitbar>.SetStatusText("Simulating year: " + Environment.CurrentDate.ToString());
+            }
+
+            SplashUtility<Waitbar>.Close();
+            this.Show();
+            this.BringToFront();
+            Environment.Stats.GatherStats();
+
+
+            DrawDemography();
+            DrawIncidence();
+            DrawDiagnose();
+            DrawMortality();
+            DrawSaved();
+            DrawSurvival();
+
+            AddLog(string.Format("Simulation Finished. Duration: {0} s.", (DateTime.Now - d).Seconds));
+
+        }
+
+        private void bFit_Click(object sender, EventArgs e)
+        {
+            AdjustParams.Adjust(this);
+        }
+
+        private void AddLog(string text)
+        {
+            var d = DateTime.Now;
+
+            tbLog.AppendText(string.Format("{0:MM/dd/yyyy HH:mm}: {1}\r\n", d, text));
+
+        }
+
+        private void PrintParams()
+        {
+            foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(Environment.Params))
+            {
+                string name = descriptor.Name;
+                object value = descriptor.GetValue(Environment.Params);
+                var row = new DataGridViewRow();
+                row.CreateCells(dgvParams);
+                if (value.GetType() == typeof(double[]))
+                {
+                    var vals = string.Join(", ",((double[])value).Select(a => a.ToString()).ToArray());
+                    row.SetValues(new object[] { name, vals });
+                }
+                else 
+                {
+                    row.SetValues(new object[] { name, value });
+                }
+                dgvParams.Rows.Add(row);
+            }
+
+
+
+        }
+
+        private void bEdit_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start("notepad++", "parameters.txt");
+            }
+            catch
+            {
+                Process.Start("notepad.exe", "parameters.txt");
+            }
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

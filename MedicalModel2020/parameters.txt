@@ -1,6 +1,6 @@
 #Demography
 
-YearsToSimulate:150
+YearsToSimulate:30
 InitPopulation:1000000
 MaleVsFemale:0.485
 UnrealLifeLength:110
