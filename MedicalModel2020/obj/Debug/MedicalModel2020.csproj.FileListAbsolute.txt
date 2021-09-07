@@ -14,6 +14,7 @@ E:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.GenerateRe
 E:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CopyComplete
 E:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel.exe
 E:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel.pdb
+C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.AssemblyReference.cache
 C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel.Form1.resources
 C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel.Properties.Resources.resources
 C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.GenerateResource.cache
@@ -26,6 +27,8 @@ C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\bin\Debug\MedicalMo
 C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\bin\Debug\MedicalModel.pdb
 C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\bin\Debug\MathNet.Numerics.dll
 C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\bin\Debug\MathNet.Numerics.xml
+C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\bin\Debug\Meta.Numerics.pdb
+C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\bin\Debug\Meta.Numerics.xml
 C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CopyComplete
 M:\GD\MedicalModel\MedicalModel2020\bin\Debug\parameters.txt
 M:\GD\MedicalModel\MedicalModel2020\bin\Debug\MedicalModel.exe.config
@@ -44,6 +47,19 @@ M:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CoreCompil
 M:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CopyComplete
 M:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel.exe
 M:\GD\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel.pdb
-C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\bin\Debug\LibOptimization.dll
-C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel.Splash.Waitbar.resources
-C:\Users\magis\Google Диск\MedicalModel\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.AssemblyReference.cache
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\parameters.txt
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\MedicalModel.exe.config
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\MedicalModel.exe
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\MedicalModel.pdb
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\MathNet.Numerics.dll
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\MathNet.Numerics.xml
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\Meta.Numerics.pdb
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\bin\Debug\Meta.Numerics.xml
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.AssemblyReference.cache
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel.Form1.resources
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel.Properties.Resources.resources
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.GenerateResource.cache
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CoreCompileInputs.cache
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CopyComplete
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel.exe
+C:\Users\ab430181\Documents\phdgit\MedicalModel2020\obj\Debug\MedicalModel.pdb
