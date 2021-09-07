@@ -41,8 +41,8 @@ namespace MedicalModel
 
             AggInits = new Dictionary<AggStatsType, int>
             {
-                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.CancerTransitions.Length},
-                {AggStatsType.ScreeningStagesDistribution, Environment.Params.CancerTransitions.Length},
+                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageCriteriaSize.Length+1},
+                {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageCriteriaSize.Length+1},
                 {AggStatsType.PeopleSaved, Environment.Params.UnrealLifeLength},
                 {AggStatsType.YearsSaved, Environment.Params.UnrealLifeLength},
                 {AggStatsType.FalsePositives, Environment.Params.YearsToSimulate},

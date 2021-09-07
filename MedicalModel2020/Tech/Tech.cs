@@ -11,17 +11,9 @@ namespace MedicalModel
     static class Tech
     {
         public static Random Rnd = new Random(DateTime.Now.Millisecond);
-        public static Exponential Diag;
-        public static List<Exponential> StageTrans;
 
         public static void Setup()
         {
-            Diag = new Exponential(1.1/Environment.Params.DiagnoseTransition);
-            StageTrans = new List<Exponential>();
-            for (int i = 0; i < Environment.Params.CancerTransitions.Length; i++)
-            {
-                StageTrans.Add(new Exponential(1/Environment.Params.CancerTransitions[i]));
-            }
 
             var testIdx = Environment.Params.TestParameters.ToList().IndexOf(Environment.Params.SelectedTest);
             Screening.TP = Environment.Params.TestTP[testIdx];

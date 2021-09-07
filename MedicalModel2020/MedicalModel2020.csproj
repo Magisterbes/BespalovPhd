@@ -40,7 +40,9 @@
     <Reference Include="MathNet.Numerics">
       <HintPath>packages\MathNet.Numerics.3.5.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="Meta.Numerics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL" />
+    <Reference Include="Meta.Numerics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
+      <HintPath>packages\Meta.Numerics.3.0.0\lib\Meta.Numerics.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -59,6 +61,8 @@
     <Compile Include="Simulation\Cancer.cs" />
     <Compile Include="Tech\Constants.cs" />
     <Compile Include="Simulation\Environment.cs" />
+    <Compile Include="Tech\RandomGenerator.cs" />
+    <Compile Include="Tech\Hazard.cs" />
     <Compile Include="Tech\Distribution.cs" />
     <Compile Include="Simulation\Screening.cs" />
     <Compile Include="Simulation\Demographics.cs" />

@@ -30,8 +30,13 @@ namespace MedicalModel
         private Distiribution maleIncidenceProbs;
         private Distiribution femaleIncidenceProbs;
 
-        private double[] cancerTransitions = new double[] { 2.5, 2.5, 3.5, 1.5 };
-        private double diagnoseTransition = 6.7;
+
+        private Hazard incidenceHazard;
+        private Hazard diagnoseHazard;
+        private Hazard сancerDeathHazard;
+        private RandomGenerator growthDistribution;
+
+        private double[] stageCriteriaSize;
 
         private double[] treatmentEfficiency = new double[] { 0.75, 0.85, 0.95 };
         private double[] complications = new double[] { 0.1 };
@@ -72,8 +77,15 @@ namespace MedicalModel
         public Distiribution MigrationDistr { get => migrationDistr; set => migrationDistr = value; }
         public Distiribution MaleIncidenceProbs { get => maleIncidenceProbs; set => maleIncidenceProbs = value; }
         public Distiribution FemaleIncidenceProbs { get => femaleIncidenceProbs; set => femaleIncidenceProbs = value; }
-        public double[] CancerTransitions { get => cancerTransitions; set => cancerTransitions = value; }
-        public double DiagnoseTransition { get => diagnoseTransition; set => diagnoseTransition = value; }
+
+
+        public Hazard IncidenceHazard { get => incidenceHazard; set => incidenceHazard = value; }
+        public RandomGenerator GrowthDistribution { get => growthDistribution; set => growthDistribution = value; }
+        public Hazard DiagnoseHazard { get => diagnoseHazard; set => diagnoseHazard = value; }
+        public Hazard CancerDeathHazard { get => сancerDeathHazard; set => сancerDeathHazard = value; }
+        public double[] StageCriteriaSize { get => stageCriteriaSize; set => stageCriteriaSize = value; }
+
+
         public double[] TreatmentEfficiency { get => treatmentEfficiency; set => treatmentEfficiency = value; }
         public double[] Complications { get => complications; set => complications = value; }
         public double[] AgeCureConstants { get => ageCureConstants; set => ageCureConstants = value; }
@@ -140,6 +152,12 @@ namespace MedicalModel
                     {
                         double[] doubles = spl[1].Split(',').Select(Double.Parse).ToArray();
                         propertyInfo.SetValue(this, doubles, null);
+                    }
+                    if (type == "Hazard")
+                    {
+                        Hazard hzd;
+
+                        propertyInfo.SetValue(this, spl[1], null);
                     }
                     else if (type == "MedicalModel.Distiribution")
                     {

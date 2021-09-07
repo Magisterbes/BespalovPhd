@@ -33,8 +33,8 @@ namespace MedicalModel
         {
             IsCured = false;
             IsScreeningCured = false;
-            StagesAges = Enumerable.Repeat(0, Tech.StageTrans.Count).ToArray();
-            var diagParam = Environment.Params.DiagnoseTransition;
+            StagesAges = Enumerable.Repeat(0, Environment.Params.StageCriteriaSize.Length+1).ToArray();
+            var diagParam = Environment.Params.DiagnoseHazard;
             DiagnoseAge = IncidenceAge + (int)Tech.ExpSample(Tech.Diag);
 
             //Get Cancer Transitions
