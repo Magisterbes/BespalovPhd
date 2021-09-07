@@ -34,6 +34,8 @@ namespace MedicalModel
             return GetLog(time, 0);
         }
 
+        public abstract double Simulate(double start, double covariates);
+
     }
 
     public class GopmHazard: Hazard
@@ -53,8 +55,10 @@ namespace MedicalModel
             return this.Constants[0] + this.Constants[1] * time + covariates;
         }
 
-
-
+        public override double Simulate(double start, double covariates)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public  class ExpHazard: Hazard
@@ -72,6 +76,11 @@ namespace MedicalModel
         public override double GetLog(double time, double covariates)
         {
             return this.Constants[0] + covariates;
+        }
+
+        public override double Simulate(double start, double covariates)
+        {
+            throw new NotImplementedException();
         }
 
 
