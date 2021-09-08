@@ -27,11 +27,12 @@ namespace MedicalModel
         public abstract double H0(double start, double end);
         public abstract double iH0(double value);
 
-        public double T(double start, double end, double covariates)
+        public double T(double start, double covariates)
         {
+            var ecov = Math.Exp(covariates);
             var tH = H0(0, start);
             var r = -Math.Log(Tech.NextDouble(false));
-            var val = tH + r / covariates;
+            var val = tH + r / ecov;
             var T = iH0(val);
 
             return T;
@@ -116,9 +117,9 @@ namespace MedicalModel
         public double O {get => Constants[0]; }
         public double k { get => Constants[1]; }
 
-        public LogLogisticHazard(double constant)
+        public LogLogisticHazard(double O, double k)
         {
-            this.Constants = new double[] { constant };
+            this.Constants = new double[] { O, k };
         }
 
         public override double GetValue(double time, double covariates)

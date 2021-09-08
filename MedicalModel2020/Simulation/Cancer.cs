@@ -33,22 +33,23 @@ namespace MedicalModel
         {
             IsCured = false;
             IsScreeningCured = false;
-            StagesAges = Enumerable.Repeat(0, Environment.Params.StageCriteriaSize.Length+1).ToArray();
+            var stages = Environment.Params.StageCriteriaSize.Length + 1;
+            StagesAges = Enumerable.Repeat(0, stages).ToArray();
             var diagParam = Environment.Params.DiagnoseHazard;
-            DiagnoseAge = IncidenceAge + (int)Tech.ExpSample(Tech.Diag);
+            DiagnoseAge = 0;//IncidenceAge + (int)Tech.ExpSample(Tech.Diag);
 
             //Get Cancer Transitions
-            for (int i = 0; i < Tech.StageTrans.Count; i++)
+            for (int i = 0; i < stages; i++)
             {
                 if (i == 0)
-                    StagesAges[i] = IncidenceAge + (int)Tech.ExpSample(Tech.StageTrans[i]);
+                    StagesAges[i] = IncidenceAge + 0; //(int)Tech.ExpSample(Tech.StageTrans[i]);
                 else
-                    StagesAges[i] = StagesAges[i - 1] + (int)Tech.ExpSample(Tech.StageTrans[i]);
+                    StagesAges[i] = StagesAges[i - 1] + 0; //(int)Tech.ExpSample(Tech.StageTrans[i]);
             }
 
-            p.CancerDeathAge = StagesAges[Tech.StageTrans.Count - 1];
+            p.CancerDeathAge = StagesAges[stages - 1];
             //See if person has died earier or before diagnose
-            if (DiagnoseAge > p.NaturalDeathAge && StagesAges[Tech.StageTrans.Count - 1]> p.NaturalDeathAge)
+            if (DiagnoseAge > p.NaturalDeathAge && StagesAges[stages - 1]> p.NaturalDeathAge)
             {
                 return;
             }
@@ -106,7 +107,7 @@ namespace MedicalModel
                     {
                         IsScreeningCured = false;
                         IsCured = false;
-                        p.CancerDeathAge = StagesAges[Tech.StageTrans.Count - 1];
+                        p.CancerDeathAge = StagesAges[Environment.Params.StageCriteriaSize.Length];
                     }
                     break;
                 }

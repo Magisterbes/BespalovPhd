@@ -34,7 +34,7 @@ namespace MedicalModel
         private Hazard incidenceHazard;
         private Hazard diagnoseHazard;
         private Hazard сancerDeathHazard;
-        private RandomGenerator growthDistribution;
+        private RandomGenerator growthRateDistribution;
 
         private double[] stageCriteriaSize;
 
@@ -80,7 +80,7 @@ namespace MedicalModel
 
 
         public Hazard IncidenceHazard { get => incidenceHazard; set => incidenceHazard = value; }
-        public RandomGenerator GrowthDistribution { get => growthDistribution; set => growthDistribution = value; }
+        public RandomGenerator GrowthRateDistribution { get => growthRateDistribution; set => growthRateDistribution = value; }
         public Hazard DiagnoseHazard { get => diagnoseHazard; set => diagnoseHazard = value; }
         public Hazard CancerDeathHazard { get => сancerDeathHazard; set => сancerDeathHazard = value; }
         public double[] StageCriteriaSize { get => stageCriteriaSize; set => stageCriteriaSize = value; }
@@ -153,11 +153,19 @@ namespace MedicalModel
                         double[] doubles = spl[1].Split(',').Select(Double.Parse).ToArray();
                         propertyInfo.SetValue(this, doubles, null);
                     }
-                    if (type == "Hazard")
+                    else if(type == "MedicalModel.Hazard")
                     {
                         Hazard hzd;
+                        hzd = ParseHazard(spl[1]);
 
-                        propertyInfo.SetValue(this, spl[1], null);
+
+                        propertyInfo.SetValue(this, hzd, null);
+                    }
+                    else if(type == "MedicalModel.RandomGenerator")
+                    {
+                        RandomGenerator gen = ParseGenerator(spl[1]);
+
+                        propertyInfo.SetValue(this, gen, null);
                     }
                     else if (type == "MedicalModel.Distiribution")
                     {
@@ -185,12 +193,53 @@ namespace MedicalModel
                     }
                 }
             }
-
-            
-
-     
-
         }
+
+
+        private RandomGenerator ParseGenerator(string spl)
+        {
+            var values = spl.Split(',');
+            var dbls = new List<double>();
+
+            for (int i = 1; i < values.Count(); i++)
+            {
+                dbls.Add(Convert.ToDouble(values[i]));
+            }
+
+            RandomGenerator rg = new RandomGenerator(dbls.ToArray(), values[0]);
+
+            return rg;
+        }
+
+        private Hazard ParseHazard(string spl)
+        {
+            var values = spl.Split(',');
+            Hazard hz;
+
+            if (values[0] == "gomp")
+            {
+                var L = Convert.ToDouble(values[1]);
+                var B = Convert.ToDouble(values[2]);
+
+                hz = new GopmHazard(L, B);
+            }
+            else if(values[0] == "loglog")
+            {
+                var O = Convert.ToDouble(values[1]);
+                var K = Convert.ToDouble(values[2]);
+
+                hz = new LogLogisticHazard(O, K);
+            }
+            else
+            {
+                var L = Convert.ToDouble(values[1]);
+
+                hz = new ExpHazard(L);
+            }
+
+            return hz;
+        }
+
 
         private double[] FromRisksToDistribution(double[] vals)
         {

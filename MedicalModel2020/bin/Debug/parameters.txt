@@ -27,7 +27,7 @@ FemaleIncidenceProbs: 0,0,0,0,0,0,1.6116895662720253e-08,6.14829723429699e-08,1.
 
 IncidenceHazard: gomp,-7,0.05
 GrowthRateDistribution: lognorm, 1, 0.2 
-DiagnoseHazard: gomp,-6,0.2
+DiagnoseHazard: gomp,-6,0.02
 CancerDeathHazard: exp,-3
 StageCriteriaSize: 5,15,25
 

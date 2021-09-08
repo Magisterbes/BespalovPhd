@@ -27,6 +27,11 @@ namespace MedicalModel
 
             Environment.Init("parameters.txt");
             PrintParams();
+
+            //Tests.HazardTest.Test(new LogLogisticHazard(-20, 6),this);
+            //Tests.HazardTest.Test(new ExpHazard(-4), this);
+            //Tests.HazardTest.Test(new GopmHazard(-7,0.05), this);
+
         }
 
         void DrawDemography()
@@ -108,7 +113,23 @@ namespace MedicalModel
         }
 
 
-        private void ChartIt(string Title, SeriesChartType ctype, Chart ThisChart, double[] data, double[] x)
+        public void ChartTest(string Title, double[] data, double[] x)
+        {
+            testChart.Series.Add(Title);
+            testChart.Series[Title].ChartType = SeriesChartType.Line;
+
+            for (int j = 0; j < x.Length; j++)
+            {
+                if (data[j] == 0)
+                    continue;
+                testChart.Series[Title].Points.AddXY(x[j], data[j]);
+            }
+            testChart.Series[Title].BorderWidth = 2;
+            testChart.ChartAreas[0].AxisX.Minimum = 0;
+            testChart.ChartAreas[0].AxisY.IsLogarithmic = true;
+        }
+
+        public void ChartIt(string Title, SeriesChartType ctype, Chart ThisChart, double[] data, double[] x)
         {
             ThisChart.Series.Add(Title);
             ThisChart.Series[Title].ChartType = ctype;
@@ -215,6 +236,12 @@ namespace MedicalModel
             {
                 string name = descriptor.Name;
                 object value = descriptor.GetValue(Environment.Params);
+
+                if (value == null)
+                {
+                    continue;
+                }
+
                 var row = new DataGridViewRow();
                 row.CreateCells(dgvParams);
                 if (value.GetType() == typeof(double[]))
