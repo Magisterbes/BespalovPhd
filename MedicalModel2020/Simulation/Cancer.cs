@@ -17,6 +17,7 @@ namespace MedicalModel
         public int ScreeningAge { get; set; }
         public int ScreeningStage { get; set; }
         public bool IsScreeningCured { get; set; }
+        public double GrowthRate { get; set; }
 
         public Cancer(Person p)
         {
@@ -24,32 +25,27 @@ namespace MedicalModel
             DiagnoseStage = -1;
             ScreeningStage = -1;
             ScreeningAge = -1;
+            GrowthRate = Environment.Params.GrowthRateDistribution.GenerateRandom();
 
             CalculateHistory(p);
 
         }
+
+
 
         void CalculateHistory(Person p)
         {
             IsCured = false;
             IsScreeningCured = false;
             var stages = Environment.Params.StageCriteriaSize.Length + 1;
-            StagesAges = Enumerable.Repeat(0, stages).ToArray();
+            StagesAges = GetStages(stages);
             var diagParam = Environment.Params.DiagnoseHazard;
-            DiagnoseAge = 0;//IncidenceAge + (int)Tech.ExpSample(Tech.Diag);
+            DiagnoseAge = IncidenceAge + SimulateDiagnoseAge();
+            StagesAges[stages-1] = IncidenceAge + (int)Environment.Params.CancerDeathHazard.T(0, 0);
+            
 
-            //Get Cancer Transitions
-            for (int i = 0; i < stages; i++)
-            {
-                if (i == 0)
-                    StagesAges[i] = IncidenceAge + 0; //(int)Tech.ExpSample(Tech.StageTrans[i]);
-                else
-                    StagesAges[i] = StagesAges[i - 1] + 0; //(int)Tech.ExpSample(Tech.StageTrans[i]);
-            }
-
-            p.CancerDeathAge = StagesAges[stages - 1];
             //See if person has died earier or before diagnose
-            if (DiagnoseAge > p.NaturalDeathAge && StagesAges[stages - 1]> p.NaturalDeathAge)
+            if (DiagnoseAge > p.NaturalDeathAge && StagesAges[stages - 1] > p.NaturalDeathAge)
             {
                 return;
             }
@@ -75,6 +71,29 @@ namespace MedicalModel
                 }
             }
 
+
+        }
+
+
+        int[] GetStages(int stagesLen)
+        {
+            var stages = Enumerable.Repeat(0, stagesLen).ToArray();
+
+            for (int i = 0; i < Environment.Params.StageCriteriaSize.Length; i++)
+            {
+                stages[i] = IncidenceAge +(int)(Math.Log(Environment.Params.StageCriteriaSize[i]) / Math.Log(GrowthRate));
+            }
+
+            return stages;
+
+        }
+
+        int SimulateDiagnoseAge()
+        {
+            var simDiagSize = Environment.Params.DiagnoseHazard.T(0, 0);
+            var t = Math.Log(simDiagSize) / Math.Log((100 + GrowthRate) / 100);
+
+            return (int)Math.Round(t);
 
         }
 

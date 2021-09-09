@@ -198,7 +198,7 @@ namespace MedicalModel
 
         private RandomGenerator ParseGenerator(string spl)
         {
-            var values = spl.Split(',');
+            var values = spl.Split(',').Select(a=>a.Trim()).ToArray();
             var dbls = new List<double>();
 
             for (int i = 1; i < values.Count(); i++)
@@ -213,7 +213,7 @@ namespace MedicalModel
 
         private Hazard ParseHazard(string spl)
         {
-            var values = spl.Split(',');
+            var values = spl.Split(',').Select(a => a.Trim()).ToArray();
             Hazard hz;
 
             if (values[0] == "gomp")

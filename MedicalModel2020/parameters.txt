@@ -25,10 +25,16 @@ FemaleIncidenceProbs: 0,0,0,0,0,0,1.6116895662720253e-08,6.14829723429699e-08,1.
 
 #!!!Distribution params!!!
 
-IncidenceHazard: gomp,-7,0.05
-GrowthRateDistribution: lognorm, 1, 0.2 
-DiagnoseHazard: gomp,-6,0.2
-CancerDeathHazard: exp,-3
+IncidenceHazard: gomp,-6,0.05
+
+#Growth Rate is percent per year
+GrowthRateDistribution: uniform, 0.5, 2 
+
+#It's the hazard dependent on tumor size, not time.
+DiagnoseHazard: gomp,-6,0.1
+
+
+CancerDeathHazard: exp,-2.5
 StageCriteriaSize: 5,15,25
 
 

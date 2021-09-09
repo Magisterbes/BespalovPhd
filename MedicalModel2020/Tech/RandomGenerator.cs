@@ -19,6 +19,7 @@ namespace MedicalModel
         private LogNormal lnorm;
         private Exponential exp;
         private Normal norm;
+        private ContinuousUniform uniform;
 
 
         public RandomGenerator(double[] coefs, string distributionType)
@@ -34,8 +35,8 @@ namespace MedicalModel
             else if (distributionType == "norm")
             {
                 norm = new Normal(coefs[0], coefs[1]);
-                GenerateRandom = GenerateLogNormal;
-                Sample = SampleLogNormal;
+                GenerateRandom = GenerateNormal;
+                Sample = SampleNormal;
             }
             else if (distributionType == "exp")
             {
@@ -43,41 +44,60 @@ namespace MedicalModel
                 GenerateRandom = GenerateExp;
                 Sample = SampleLogNormal;
             }
+            else if (distributionType == "uniform")
+            {
+                uniform = new ContinuousUniform(coefs[0],coefs[1]);
+                GenerateRandom = GenerateUn;
+                Sample = SampleUn;
+            }
 
         }
-        public double GenerateLogNormal()
+
+        private double GenerateLogNormal()
         {
             return lnorm.Sample();
         }
 
-        public double[] SampleLogNormal(int size)
+        private double[] SampleLogNormal(int size)
         {
             var res = new double[size];
             lnorm.Samples(res);
             return res;
         }
 
-        public double GenerateNormal()
+        private double GenerateNormal()
         {
             return norm.Sample();
         }
 
-        public double[] SampleNormal(int size)
+        private double[] SampleNormal(int size)
         {
             var res = new double[size];
             norm.Samples(res);
             return res;
         }
 
-        public double GenerateExp()
+        private double GenerateExp()
         {
             return exp.Sample();
         }
 
-        public double[] SampleExp(int size)
+        private double[] SampleExp(int size)
         {
             var res = new double[size];
             exp.Samples(res);
+            return res;
+        }
+
+        private double GenerateUn()
+        {
+            return uniform.Sample();
+        }
+
+        private double[] SampleUn(int size)
+        {
+            var res = new double[size];
+            uniform.Samples(res);
             return res;
         }
     }
