@@ -10,6 +10,8 @@ namespace MedicalModel
     static class Demo
     {
 
+        public static int errors = 0;
+
         public static void GenerateMigraion(Parameters prms, Person p)
         {
             
@@ -26,7 +28,7 @@ namespace MedicalModel
                 p.Sex = PersonSex.Female;
                 GetBirthday(prms.InitAgeDistFemale, p, isNew);
                 GetNaturalDeath(prms.FemaleAging, p);
-                GetIncidence(prms.FemaleIncidenceProbs, p);
+                GetIncidence(prms.IncidenceHazardFemale, p);
 
             }
             else
@@ -34,7 +36,7 @@ namespace MedicalModel
                 p.Sex = PersonSex.Male;
                 GetBirthday(prms.InitAgeDistMale, p, isNew);
                 GetNaturalDeath(prms.MaleAging, p);
-                GetIncidence(prms.MaleIncidenceProbs, p);
+                GetIncidence(prms.IncidenceHazardMale, p);
 
             }
 
@@ -42,7 +44,7 @@ namespace MedicalModel
             return p;
         }
 
-        private static void GetBirthday(Distiribution distr, Person p, bool isNew)
+        private static void GetBirthday(Distribution distr, Person p, bool isNew)
         {
             if (isNew)
             {
@@ -50,23 +52,32 @@ namespace MedicalModel
             }
             else
             {
-                p.DateBirth = Environment.CurrentDate - distr.GenerateRandom();
+                var r = distr.GenerateRandom();
+                p.DateBirth = Environment.CurrentDate - r;
             }
 
         }
 
-        private static void GetNaturalDeath(Distiribution distr, Person p)
+        private static void GetNaturalDeath(Distribution distr, Person p)
         {
-            while (p.Age >= p.NaturalDeathAge)
+            var counter = 0;
+            while (p.Age >= p.NaturalDeathAge && counter<5)
             {
                 p.NaturalDeathAge = distr.GenerateRandom();
+                counter++;
+            }
+            
+            if (p.Age >= p.NaturalDeathAge)
+            {
+                p.NaturalDeathAge = p.Age + 1;
+                errors++;
             }
 
         }
 
-        private static void GetIncidence(Distiribution distr, Person p)
+        private static void GetIncidence(Hazard hz, Person p)
         {
-            if (distr.NormalizationCoef < Tech.NextDouble(false) || p.Age>98)
+            if (p.Age>98)
             {
                 p.IncidenceAge = -1;
                 return;
@@ -74,7 +85,7 @@ namespace MedicalModel
 
             while (p.Age >= p.IncidenceAge)
             {
-                p.IncidenceAge = distr.GenerateRandom();
+                p.IncidenceAge = (int)hz.T(0,0);
             }
 
         }

@@ -19,13 +19,28 @@ namespace MedicalModel
         public bool IsScreeningCured { get; set; }
         public double GrowthRate { get; set; }
 
+        private Hazard DiagnoseHazard;
+        private Hazard CancerDeathHazard;
+
         public Cancer(Person p)
         {
             IncidenceAge = p.Age;
             DiagnoseStage = -1;
             ScreeningStage = -1;
             ScreeningAge = -1;
-            GrowthRate = Environment.Params.GrowthRateDistribution.GenerateRandom();
+
+            if (p.Sex == PersonSex.Female)
+            {
+                GrowthRate = Environment.Params.GrowthRateDistributionFemale.GenerateRandom();
+                DiagnoseHazard = Environment.Params.DiagnoseHazardFemale;
+                CancerDeathHazard = Environment.Params.CancerDeathHazardFemale;
+            }
+            else
+            {
+                GrowthRate = Environment.Params.GrowthRateDistributionMale.GenerateRandom();
+                DiagnoseHazard = Environment.Params.DiagnoseHazardMale;
+                CancerDeathHazard = Environment.Params.CancerDeathHazardMale;
+            }
 
             CalculateHistory(p);
 
@@ -39,12 +54,12 @@ namespace MedicalModel
             IsScreeningCured = false;
             var stages = Environment.Params.StageCriteriaSize.Length + 1;
             StagesAges = GetStages(stages);
-            var diagParam = Environment.Params.DiagnoseHazard;
             DiagnoseAge = IncidenceAge + SimulateDiagnoseAge();
-            StagesAges[stages-1] = IncidenceAge + (int)Environment.Params.CancerDeathHazard.T(0, 0);
-            
+            StagesAges[stages-1] = StagesAges[stages - 2] + (int)CancerDeathHazard.T(0, 0);
+
 
             //See if person has died earier or before diagnose
+            p.CancerDeathAge = StagesAges[stages - 1];
             if (DiagnoseAge > p.NaturalDeathAge && StagesAges[stages - 1] > p.NaturalDeathAge)
             {
                 return;
@@ -90,8 +105,8 @@ namespace MedicalModel
 
         int SimulateDiagnoseAge()
         {
-            var simDiagSize = Environment.Params.DiagnoseHazard.T(0, 0);
-            var t = Math.Log(simDiagSize) / Math.Log((100 + GrowthRate) / 100);
+            var simDiagSize = DiagnoseHazard.T(0, 0);
+            var t = Math.Log(simDiagSize) / Math.Log(GrowthRate);
 
             return (int)Math.Round(t);
 

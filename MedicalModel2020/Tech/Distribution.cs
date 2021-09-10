@@ -13,14 +13,14 @@ namespace MedicalModel
         PDF
     }
 
-    class Distiribution
+    class Distribution
     {
 
         double[] CDF;
         double[] PDF;
         public double NormalizationCoef;  
 
-        public Distiribution(double[] input, DistributionInputType dtype)
+        public Distribution(double[] input, DistributionInputType dtype)
         {
             if (dtype == DistributionInputType.CDF)
             {
@@ -41,6 +41,8 @@ namespace MedicalModel
 
                 CDF = PDF.Select(w => sum += w).ToArray();
             }
+
+            CDF = CDF.Select(w => w / CDF.Max()).ToArray();
         }
 
         public int GenerateRandom()
@@ -50,7 +52,7 @@ namespace MedicalModel
             for (int i = 0; i < CDF.Length; i++)
             {
                 if (rand < CDF[i])
-                    return i-1;
+                    return i;
             }
 
             return -1;

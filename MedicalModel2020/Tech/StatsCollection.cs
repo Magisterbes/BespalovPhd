@@ -43,12 +43,12 @@ namespace MedicalModel
             {
                 {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageCriteriaSize.Length+1},
                 {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageCriteriaSize.Length+1},
-                {AggStatsType.PeopleSaved, Environment.Params.UnrealLifeLength},
-                {AggStatsType.YearsSaved, Environment.Params.UnrealLifeLength},
-                {AggStatsType.FalsePositives, Environment.Params.YearsToSimulate},
-                {AggStatsType.MortalityRates, Environment.Params.YearsToSimulate},
-                {AggStatsType.ScreenedMortalityRates, Environment.Params.YearsToSimulate},
-                {AggStatsType.IncidenceRates, Environment.Params.YearsToSimulate},
+                {AggStatsType.PeopleSaved, Environment.Params.UnrealLifeLength+1},
+                {AggStatsType.YearsSaved, Environment.Params.UnrealLifeLength+1},
+                {AggStatsType.FalsePositives, Environment.Params.YearsToSimulate+1},
+                {AggStatsType.MortalityRates, Environment.Params.YearsToSimulate+1},
+                {AggStatsType.ScreenedMortalityRates, Environment.Params.YearsToSimulate+1},
+                {AggStatsType.IncidenceRates, Environment.Params.YearsToSimulate+1},
                 {AggStatsType.Survival, 100},
                 {AggStatsType.SurvivalScreening, 100}
              };
@@ -66,7 +66,7 @@ namespace MedicalModel
                 this.Stats[(StatsType)stype] = new Dictionary<int, int[]>();
                 for (int i = 0; i < Environment.Params.YearsToSimulate; i++)
                 {
-                    this.Stats[(StatsType)stype][i] = Enumerable.Repeat(0, Environment.Params.UnrealLifeLength).ToArray();
+                    this.Stats[(StatsType)stype][i] = Enumerable.Repeat(0, Environment.Params.UnrealLifeLength+1).ToArray();
                 }
             }
 
@@ -75,17 +75,17 @@ namespace MedicalModel
         public void UpdateStats(StatsType stype, int year, int age)
         {
 
-            lock (Stats)
-            {
+            //lock (Stats)
+            //{
                 this.Stats[stype][year][age]++;
-            }
+            //}
         }
         public void UpdateStats(StatsType stype, int year, int age, int value)
         {
-            lock (Stats)
-            {
+            //lock (Stats)
+            //{
                 this.Stats[stype][year][age] += value;
-            }
+            //}
         }
 
         public void GatherStats()
@@ -146,13 +146,13 @@ namespace MedicalModel
             var data = FullSum(Data);
             var pop = FullSum(Pop);
 
-            return data.Zip(pop, (d, p) => d / p).ToArray();
+            return data.Zip(pop, (d, p) => d / (p+1)).ToArray();
         }
 
 
         private double[] FullSum(Dictionary<int, int[]> Data)
         {
-            var res = Enumerable.Repeat((double)0, Environment.Params.UnrealLifeLength).ToArray();
+            var res = Enumerable.Repeat((double)0, Environment.Params.UnrealLifeLength+1).ToArray();
             foreach (var key in Data.Keys)
             {
                 for (int i = 0; i < Data[key].Length; i++)
@@ -176,16 +176,16 @@ namespace MedicalModel
                 if (p.CurrentCancer.ScreeningAge != -1)
                 {
                     if (p.CurrentCancer.IsScreeningCured)
-                        itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
+                        itterSurv(p.CurrentCancer.DiagnoseAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
                     else
-                        itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
+                        itterSurv(p.CurrentCancer.DiagnoseAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
                 }
                 else
                 {
                     if (p.CurrentCancer.IsCured)
-                        itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.Survival);
+                        itterSurv(p.CurrentCancer.DiagnoseAge, p.NaturalDeathAge, AggStatsType.Survival);
                     else
-                        itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.Survival);
+                        itterSurv(p.CurrentCancer.DiagnoseAge, p.CancerDeathAge, AggStatsType.Survival);
                 }
                 
                 

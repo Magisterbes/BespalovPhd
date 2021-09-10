@@ -49,11 +49,13 @@ namespace MedicalModel
             {
                 Population.Add(Demo.GenerateAgeAndGender(Params,i,false));
             }
+            
         }
         
         static public void ItteratePopulation()
         {
             int fertile = 0;
+            int check = 0;
             Population.ForEach(p =>
             {
                 if (p.Age == p.NaturalDeathAge)
@@ -95,9 +97,13 @@ namespace MedicalModel
                 {
                     Stats.UpdateStats(StatsType.AgeDistributions, CurrentDate, p.Age);
 
-                    if (p.IncidenceAge == -1 || p.IncidenceAge < p.Age)
+                    if (p.IncidenceAge == -1 || p.IncidenceAge > p.Age)
                     {
                         Stats.UpdateStats(StatsType.AtRisk, CurrentDate, p.Age);
+                    }
+                    else
+                    {
+                        check++;
                     }
 
                     if (p.Age == p.CancerDeathAge)
