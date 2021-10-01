@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -58,14 +59,26 @@ namespace MedicalModel
 
         }
 
-        void DrawIncidence()
+        void DrawIncidence(Dictionary<AggStatsType,double[]> agg, bool clear, string Title)
         {
-            var data = Environment.Stats.AggStats[AggStatsType.IncidenceRates].Select(a=>a*100000).ToArray() ;
+            var data = agg[AggStatsType.IncidenceRates].Select(a=>a*100000).ToArray() ;
             var x = Enumerable.Range(0, 95).Select(a => (double)a).ToArray();
-            IncChart.Series.Clear();
 
-            var title = "Incidence Rates";
+            if (clear)
+                IncChart.Series.Clear();
+
+            var title = "Incidence Rates " + Title;
             ChartIt(title, SeriesChartType.Line, IncChart, data,x);
+
+            if (Title =="Male")
+            {
+                ChartIt("Train male incidence", SeriesChartType.Line, IncChart, Environment.Params.MaleTrainIncidence, x);
+            }
+            else if (Title == "Female")
+            {
+                ChartIt("Train female incidence", SeriesChartType.Line, IncChart, Environment.Params.FemaleTrainIncidence, x);
+            }
+
 
             IncChart.ChartAreas[0].AxisX.Title = "Age";
             IncChart.ChartAreas[0].AxisY.Title = "Rates*100000";
@@ -73,18 +86,29 @@ namespace MedicalModel
         }
 
 
-        void DrawMortality()
+        void DrawMortality(Dictionary<AggStatsType, double[]> agg, bool clear, string Title)
         {
-            var data = Environment.Stats.AggStats[AggStatsType.MortalityRates].Select(a => a * 100000).ToArray();
-            var screen = Environment.Stats.AggStats[AggStatsType.ScreenedMortalityRates].Select(a => a * 100000).ToArray();
+            var data = agg[AggStatsType.MortalityRates].Select(a => a * 100000).ToArray();
+            var screen = agg[AggStatsType.ScreenedMortalityRates].Select(a => a * 100000).ToArray();
             var x = Enumerable.Range(0, 95).Select(a => (double)a).ToArray();
-            MortChart.Series.Clear();
+            
+            if(clear) 
+                MortChart.Series.Clear();
 
-            var title = "Mortality Rates";
+            var title = "Mortality Rates " + Title;
             ChartIt(title, SeriesChartType.Line, MortChart, data,x);
 
-            title = "Mortality Rates (Screening)";
+            title = "Mortality Rates (Screening) "+ Title;
             ChartIt(title, SeriesChartType.Line, MortChart, screen,x);
+
+            if (Title == "Male")
+            {
+                ChartIt("Train male morrtality", SeriesChartType.Line, MortChart, Environment.Params.MaleTrainMortality, x);
+            }
+            else if (Title == "Female")
+            {
+                ChartIt("Train female morrtality", SeriesChartType.Line, MortChart, Environment.Params.FemaleTrainMortality, x);
+            }
 
             MortChart.ChartAreas[0].AxisX.Title = "Age";
             MortChart.ChartAreas[0].AxisY.Title = "Rates*100000";
@@ -194,6 +218,9 @@ namespace MedicalModel
             SplashUtility<Waitbar>.Show();
             Environment.CurrentDate = 0;
             AddLog("Simulation started.");
+
+            Environment.Start();
+
             for (int i = 0; i < Environment.Params.YearsToSimulate - 1; i++)
             {
                 Environment.CurrentDate++;
@@ -204,12 +231,14 @@ namespace MedicalModel
             this.Show();
             this.BringToFront();
             Environment.Stats.GatherStats();
-
+            
 
             DrawDemography();
-            DrawIncidence();
+            DrawIncidence(Environment.Stats.FAggStats,true,"Female");
+            DrawIncidence(Environment.Stats.MAggStats, false, "Male");
             DrawDiagnose();
-            DrawMortality();
+            DrawMortality(Environment.Stats.FAggStats, true, "Female");
+            DrawMortality(Environment.Stats.MAggStats, false, "Male");
             DrawSaved();
             DrawSurvival();
 
@@ -218,16 +247,45 @@ namespace MedicalModel
         }
 
         private void bFit_Click(object sender, EventArgs e)
+
         {
+            AddLog("Fit started.");
+            LogAdjustParams();
+            SplashUtility<Waitbar>.Show();
             AdjustParams.Adjust(this);
+            SplashUtility<Waitbar>.Close();
+            AddLog("Fit finnished.");
+            LogAdjustParams();
         }
 
-        private void AddLog(string text)
+        public void AddLog(string text)
         {
             var d = DateTime.Now;
 
             tbLog.AppendText(string.Format("{0:MM/dd/yyyy HH:mm}: {1}\r\n", d, text));
 
+        }
+
+
+        private void LogAdjustParams()
+        {
+            List<string> res = new List<string>();
+
+            res.Add("GrowthRateDistributionFemale:" + string.Join(", ", Environment.Params.GrowthRateDistributionFemale.Coefs));
+            res.Add("IncidenceHazardFemale:" + string.Join(", ", Environment.Params.IncidenceHazardFemale.Constants));
+            res.Add("DiagnoseHazardFemale:" + string.Join(", ", Environment.Params.DiagnoseHazardFemale.Constants));
+            res.Add("MalignancyHazardFemale:" + string.Join(", ", Environment.Params.MalignancyHazardFemale.Constants));
+            res.Add("CancerDeathHazardFemale:" + string.Join(", ", Environment.Params.CancerDeathHazardFemale.Constants));
+
+
+            res.Add("GrowthRateDistributionMale:" + string.Join(", ", Environment.Params.GrowthRateDistributionMale.Coefs));
+            res.Add("IncidenceHazardMale:" + string.Join(", ", Environment.Params.IncidenceHazardMale.Constants));
+            res.Add("DiagnoseHazardMale:" + string.Join(", ", Environment.Params.DiagnoseHazardMale.Constants));
+            res.Add("MalignancyHazardMale:" + string.Join(", ", Environment.Params.MalignancyHazardMale.Constants));
+            res.Add("CancerDeathHazardMale:" + string.Join(", ", Environment.Params.CancerDeathHazardMale.Constants));
+
+            AddLog(string.Join("\r\n", res));
+          
         }
 
         private void PrintParams()

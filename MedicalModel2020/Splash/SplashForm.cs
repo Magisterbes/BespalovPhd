@@ -10,6 +10,7 @@ namespace MedicalModel
         DialogResult ShowDialog();
         void Close();
         void SetStatusText(string text);
+        void DrawPlot(double[] data);
     }
 
 
@@ -39,6 +40,14 @@ namespace MedicalModel
             if (_splash != null)
             {
                 _splash.BeginInvoke((MethodInvoker)delegate { _splash.SetStatusText(text); });
+            }
+        }
+
+        public static void DrawPlot(double[] data)
+        {
+            if (_splash != null)
+            {
+                _splash.BeginInvoke((MethodInvoker)delegate { _splash.DrawPlot(data); });
             }
         }
     }

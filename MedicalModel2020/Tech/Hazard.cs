@@ -35,7 +35,12 @@ namespace MedicalModel
             var val = tH + r / ecov;
             var T = iH0(val);
 
-            return T;
+            if (T == double.PositiveInfinity|| T == double.NegativeInfinity)
+            {
+                return (double)Int16.MaxValue;
+            }
+
+            return Math.Abs(T);
         }
 
     }
@@ -53,17 +58,17 @@ namespace MedicalModel
 
         public override double GetValue(double time, double covariates)
         {
-            return Math.Exp(L+ B* time + covariates);
+            return Math.Exp(-L+ B* time + covariates);
         }
 
         public override double GetLog(double time, double covariates)
         {
-            return L + B * time + covariates;
+            return -L + B * time + covariates;
         }
 
         public override double H0(double start, double end)
         {
-            var H0 = Math.Exp(L) / B;
+            var H0 = Math.Exp(-L) / B;
             var H = H0 * (Math.Exp(B * start) - Math.Exp(B * end));
 
             return H;
@@ -71,7 +76,7 @@ namespace MedicalModel
 
         public override double iH0(double value)
         {
-            var logiH = (B * value / Math.Exp(L)) + 1;
+            var logiH = (B * value / Math.Exp(-L)) + 1;
             var iH = Math.Log(logiH) / B;
 
             return iH;
@@ -95,17 +100,17 @@ namespace MedicalModel
 
         public override double GetLog(double time, double covariates)
         {
-            return L + covariates;
+            return -L + covariates;
         }
 
         public override double H0(double start, double end)
         {
-            return (Math.Exp(L) * (end - start));
+            return (Math.Exp(-L) * (end - start));
         }
 
         public override double iH0(double value)
         {
-            return value/(Math.Exp(L));
+            return value/(Math.Exp(-L));
         }
 
 
@@ -127,7 +132,7 @@ namespace MedicalModel
 
             var ecov = Math.Exp(covariates);
 
-            return Math.Exp(O)*k * Math.Pow(time* ecov, k - 1) / (1 + Math.Exp(O) * Math.Pow(time* ecov, k));
+            return Math.Exp(-O)*k * Math.Pow(time* ecov, k - 1) / (1 + Math.Exp(-O) * Math.Pow(time* ecov, k));
         }
 
         public override double GetLog(double time, double covariates)
@@ -138,14 +143,14 @@ namespace MedicalModel
         public override double H0(double start, double end)
         {
   
-            var S = 1 / (1 + Math.Exp(O) * Math.Pow(end, k));
+            var S = 1 / (1 + Math.Exp(-O) * Math.Pow(end, k));
 
             return -Math.Log(S);
         }
 
         public override double iH0(double value)
         {
-            var under = (Math.Exp(value) - 1) / Math.Exp(O);
+            var under = (Math.Exp(value) - 1) / Math.Exp(-O);
 
             return Math.Pow(under, 1 / k);
         }

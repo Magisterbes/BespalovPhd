@@ -14,6 +14,7 @@ namespace MedicalModel
         public int AfterDiagYears { get; set; }
         public bool IsCured { get; set; }
         public int DiagnoseStage { get; set; }
+        public int MalignancyAge { get; set; }
         public int ScreeningAge { get; set; }
         public int ScreeningStage { get; set; }
         public bool IsScreeningCured { get; set; }
@@ -21,25 +22,29 @@ namespace MedicalModel
 
         private Hazard DiagnoseHazard;
         private Hazard CancerDeathHazard;
+        private Hazard MalignancyHazard;
 
         public Cancer(Person p)
         {
-            IncidenceAge = p.Age;
+            IncidenceAge = p.IncidenceAge;
             DiagnoseStage = -1;
             ScreeningStage = -1;
             ScreeningAge = -1;
+            MalignancyAge = -1;
 
             if (p.Sex == PersonSex.Female)
             {
                 GrowthRate = Environment.Params.GrowthRateDistributionFemale.GenerateRandom();
                 DiagnoseHazard = Environment.Params.DiagnoseHazardFemale;
                 CancerDeathHazard = Environment.Params.CancerDeathHazardFemale;
+                MalignancyHazard = Environment.Params.MalignancyHazardFemale;
             }
             else
             {
                 GrowthRate = Environment.Params.GrowthRateDistributionMale.GenerateRandom();
                 DiagnoseHazard = Environment.Params.DiagnoseHazardMale;
                 CancerDeathHazard = Environment.Params.CancerDeathHazardMale;
+                MalignancyHazard = Environment.Params.MalignancyHazardMale;
             }
 
             CalculateHistory(p);
@@ -52,8 +57,9 @@ namespace MedicalModel
         {
             IsCured = false;
             IsScreeningCured = false;
-            var stages = Environment.Params.StageCriteriaSize.Length + 1;
-            StagesAges = GetStages(stages);
+            int stages = Environment.Params.StageCriteria.Stages;
+            MalignancyAge = IncidenceAge + (int)MalignancyHazard.T(0, 0);
+            StagesAges = Environment.Params.StageCriteria.GetStages(GrowthRate,IncidenceAge,MalignancyAge);
             DiagnoseAge = IncidenceAge + SimulateDiagnoseAge();
             StagesAges[stages-1] = StagesAges[stages - 2] + (int)CancerDeathHazard.T(0, 0);
 
@@ -90,18 +96,7 @@ namespace MedicalModel
         }
 
 
-        int[] GetStages(int stagesLen)
-        {
-            var stages = Enumerable.Repeat(0, stagesLen).ToArray();
-
-            for (int i = 0; i < Environment.Params.StageCriteriaSize.Length; i++)
-            {
-                stages[i] = IncidenceAge +(int)(Math.Log(Environment.Params.StageCriteriaSize[i]) / Math.Log(GrowthRate));
-            }
-
-            return stages;
-
-        }
+       
 
         int SimulateDiagnoseAge()
         {
@@ -141,7 +136,7 @@ namespace MedicalModel
                     {
                         IsScreeningCured = false;
                         IsCured = false;
-                        p.CancerDeathAge = StagesAges[Environment.Params.StageCriteriaSize.Length];
+                        p.CancerDeathAge = StagesAges[Environment.Params.StageCriteria.Stages-1];
                     }
                     break;
                 }

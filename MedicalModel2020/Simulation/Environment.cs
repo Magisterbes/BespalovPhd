@@ -43,15 +43,23 @@ namespace MedicalModel
             Tech.Setup();
             Stats = new StatsCollection(Params.YearsToSimulate);
             Environment.CurrentDate = 0;
+            
+        }
+
+        static public void Start()
+        {
+            Stats = new StatsCollection(Params.YearsToSimulate);
+            Environment.CurrentDate = 0;
             Population = new List<Person>();
 
             for (int i = 0; i < Params.InitPopulation; i++)
             {
-                Population.Add(Demo.GenerateAgeAndGender(Params,i,false));
+                Population.Add(Demo.GenerateAgeAndGender(Params, i, false));
             }
-            
+
         }
-        
+
+
         static public void ItteratePopulation()
         {
             int fertile = 0;
@@ -64,7 +72,7 @@ namespace MedicalModel
 
                     if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
                     {
-                        Stats.UpdateStats(StatsType.CancerMortality, CurrentDate, p.Age);
+                        Stats.UpdateStats(StatsType.CancerMortality, CurrentDate, p.Age, p.Sex);
                     }
                 }
                 
@@ -82,7 +90,7 @@ namespace MedicalModel
                     if (p.Age == p.IncidenceAge)
                     {
                         p.CurrentCancer = new Cancer(p);
-                        Stats.UpdateStats(StatsType.Inicdence, CurrentDate, p.Age);
+                        Stats.UpdateStats(StatsType.Inicdence, CurrentDate, p.Age,p.Sex);
                     }
 
                     if (CurrentDate >= Environment.Params.ScreeningDate
@@ -95,11 +103,11 @@ namespace MedicalModel
 
                 if (p.IsAlive)
                 {
-                    Stats.UpdateStats(StatsType.AgeDistributions, CurrentDate, p.Age);
+                    Stats.UpdateStats(StatsType.AgeDistributions, CurrentDate, p.Age, p.Sex);
 
                     if (p.IncidenceAge == -1 || p.IncidenceAge > p.Age)
                     {
-                        Stats.UpdateStats(StatsType.AtRisk, CurrentDate, p.Age);
+                        Stats.UpdateStats(StatsType.AtRisk, CurrentDate, p.Age, p.Sex);
                     }
                     else
                     {
@@ -110,8 +118,8 @@ namespace MedicalModel
                     {
                         if (p.DeathCause == DeathStatus.Cancer)
                         {
-                            Stats.UpdateStats(StatsType.CancerMortality, CurrentDate, p.Age);
-                            Stats.UpdateStats(StatsType.CancerScreeningMortality, CurrentDate, p.Age);
+                            Stats.UpdateStats(StatsType.CancerMortality, CurrentDate, p.Age, p.Sex);
+                            Stats.UpdateStats(StatsType.CancerScreeningMortality, CurrentDate, p.Age, p.Sex);
                         }
 
                     }
@@ -121,7 +129,7 @@ namespace MedicalModel
 
             });
 
-            NewPeople(fertile);
+            Population.AddRange(NewPeople(fertile));
 
         }
 
@@ -136,8 +144,11 @@ namespace MedicalModel
             return false;
         }
 
-        static void NewPeople(int fertile)
+        public static List<Person> NewPeople(int fertile)
         {
+
+            var li = new List<Person>();
+
             Tech.ResetRandom();
             var prev = Stats.Stats[StatsType.AgeDistributions][CurrentDate][1];
             var newBorn = fertile * Params.MeanBornProbabilityPerYear;
@@ -147,9 +158,10 @@ namespace MedicalModel
 
             for (int i = 0; i < newBorn; i++)
             {
-                Population.Add(Demo.GenerateAgeAndGender(Params, MaxID+1+i,true));
+                li.Add(Demo.GenerateAgeAndGender(Params, MaxID+1+i,true));
             }
 
+            return li;
         }
 
 

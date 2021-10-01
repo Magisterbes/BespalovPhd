@@ -40,6 +40,12 @@ namespace MedicalModel
 
             }
 
+            if (p.IncidenceAge <= p.Age)
+            {
+                p.CurrentCancer = new Cancer(p);
+                // Environment.Stats.UpdateStats(StatsType.Inicdence, Environment.CurrentDate - (p.Age- p.IncidenceAge), p.IncidenceAge, p.Sex);
+            }
+
 
             return p;
         }
@@ -83,10 +89,10 @@ namespace MedicalModel
                 return;
             }
 
-            while (p.Age >= p.IncidenceAge)
-            {
+            //while (p.Age >= p.IncidenceAge)
+            //{
                 p.IncidenceAge = (int)hz.T(0,0);
-            }
+           // }
 
         }
 

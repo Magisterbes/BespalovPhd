@@ -168,6 +168,7 @@
   <ItemGroup>
     <Compile Include="Optimization\AdjustObjectiveFunction.cs" />
     <Compile Include="Simulation\Cancer.cs" />
+    <Compile Include="Simulation\Criteria.cs" />
     <Compile Include="Tech\Constants.cs" />
     <Compile Include="Simulation\Environment.cs" />
     <Compile Include="Tech\RandomGenerator.cs" />

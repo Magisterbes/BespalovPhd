@@ -27,18 +27,27 @@ namespace MedicalModel
         private Distribution maleAging;
         private Distribution femaleAging;
 
+        private double[] femaleTrainIncidence;
+        private double[] femaleTrainMortality;
+        private double[] maleTrainIncidence;
+        private double[] maleTrainMortality;
+
+
+
         private Hazard incidenceHazardMale;
+        private Hazard malignancyHazardMale;
         private Hazard diagnoseHazardMale;
         private Hazard сancerDeathHazardMale;
         private RandomGenerator growthRateDistributionMale;
 
 
         private Hazard incidenceHazardFemale;
+        private Hazard malignancyHazardFemale;
         private Hazard diagnoseHazardFemale;
         private Hazard сancerDeathHazardFemale;
         private RandomGenerator growthRateDistributionFemale;
 
-        private double[] stageCriteriaSize;
+        private Criteria stageCriteria;
 
 
         private double[] treatmentEfficiency = new double[] { 0.75, 0.85, 0.95 };
@@ -76,24 +85,32 @@ namespace MedicalModel
 
         public string TrainDataFilename { get => trainDataFilename; set => trainDataFilename = value; }
 
+        public double[] FemaleTrainIncidence { get => femaleTrainIncidence; set => femaleTrainIncidence = value; }
+        public double[] MaleTrainIncidence { get => maleTrainIncidence; set => maleTrainIncidence = value; }
+        public double[] FemaleTrainMortality{ get => femaleTrainMortality; set => femaleTrainMortality = value; }
+        public double[] MaleTrainMortality { get => maleTrainMortality; set => maleTrainMortality = value; }
+
+
         public Distribution MaleAging { get => maleAging; set => maleAging = value; }
         public Distribution FemaleAging { get => femaleAging; set => femaleAging = value; }
         public Distribution InitAgeDistMale { get => initAgeDistMale; set => initAgeDistMale = value; }
         public Distribution InitAgeDistFemale { get => initAgeDistFemale; set => initAgeDistFemale = value; }
 
+        public Hazard MalignancyHazardMale { get => malignancyHazardMale; set => malignancyHazardMale = value; }
         public Hazard IncidenceHazardMale { get => incidenceHazardMale; set => incidenceHazardMale = value; }
         public RandomGenerator GrowthRateDistributionMale { get => growthRateDistributionMale; set => growthRateDistributionMale = value; }
         public Hazard DiagnoseHazardMale { get => diagnoseHazardMale; set => diagnoseHazardMale = value; }
         public Hazard CancerDeathHazardMale { get => сancerDeathHazardMale; set => сancerDeathHazardMale = value; }
 
 
+        public Hazard MalignancyHazardFemale { get => malignancyHazardFemale; set => malignancyHazardFemale = value; }
         public Hazard IncidenceHazardFemale { get => incidenceHazardFemale; set => incidenceHazardFemale = value; }
         public RandomGenerator GrowthRateDistributionFemale { get => growthRateDistributionFemale; set => growthRateDistributionFemale = value; }
         public Hazard DiagnoseHazardFemale { get => diagnoseHazardFemale; set => diagnoseHazardFemale = value; }
         public Hazard CancerDeathHazardFemale { get => сancerDeathHazardFemale; set => сancerDeathHazardFemale = value; }
 
 
-        public double[] StageCriteriaSize { get => stageCriteriaSize; set => stageCriteriaSize = value; }
+        public Criteria StageCriteria { get => stageCriteria; set => stageCriteria = value; }
 
 
         public double[] TreatmentEfficiency { get => treatmentEfficiency; set => treatmentEfficiency = value; }
@@ -172,6 +189,12 @@ namespace MedicalModel
 
                         propertyInfo.SetValue(this, hzd, null);
                     }
+                    else if (type == "MedicalModel.Criteria")
+                    {
+                        Criteria crt = new Criteria(spl[1]);
+
+                        propertyInfo.SetValue(this, crt, null);
+                    }
                     else if(type == "MedicalModel.RandomGenerator")
                     {
                         RandomGenerator gen = ParseGenerator(spl[1]);
@@ -228,6 +251,12 @@ namespace MedicalModel
 
             rate = DFCtoArray(TrainData.Columns["mortality all male"] / msum);
             maleAging = new Distribution(rate, DistributionInputType.PDF);
+
+
+            femaleTrainIncidence = DFCtoArray(100000*TrainData.Columns["incidence female"] / TrainData.Columns["female population"]);
+            maleTrainIncidence = DFCtoArray(100000 * TrainData.Columns["incidence male"] / TrainData.Columns["male population"]);
+            femaleTrainMortality = DFCtoArray(100000 * TrainData.Columns["mortality cancer female"] / TrainData.Columns["female population"]);
+            maleTrainMortality = DFCtoArray(100000 * TrainData.Columns["mortality cancer male"] / TrainData.Columns["male population"]);
 
         }
 
@@ -311,5 +340,9 @@ namespace MedicalModel
 
         }
 
+        public Parameters Clone()
+        {
+            return (Parameters)this.MemberwiseClone();
+        }
     }
 }

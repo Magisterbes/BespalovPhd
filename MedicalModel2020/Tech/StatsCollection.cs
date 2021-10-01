@@ -33,7 +33,11 @@ namespace MedicalModel
     class StatsCollection
     {
         public Dictionary<StatsType, Dictionary<int, int[]>> Stats;
+        public Dictionary<StatsType, Dictionary<int, int[]>> FStats;
+        public Dictionary<StatsType, Dictionary<int, int[]>> MStats;
         public Dictionary<AggStatsType, double[]> AggStats;
+        public Dictionary<AggStatsType, double[]> FAggStats;
+        public Dictionary<AggStatsType, double[]> MAggStats;
         private Dictionary<AggStatsType, int> AggInits;
 
         public StatsCollection(int LastYear)
@@ -41,8 +45,8 @@ namespace MedicalModel
 
             AggInits = new Dictionary<AggStatsType, int>
             {
-                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageCriteriaSize.Length+1},
-                {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageCriteriaSize.Length+1},
+                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageCriteria.Stages},
+                {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageCriteria.Stages},
                 {AggStatsType.PeopleSaved, Environment.Params.UnrealLifeLength+1},
                 {AggStatsType.YearsSaved, Environment.Params.UnrealLifeLength+1},
                 {AggStatsType.FalsePositives, Environment.Params.YearsToSimulate+1},
@@ -53,91 +57,128 @@ namespace MedicalModel
                 {AggStatsType.SurvivalScreening, 100}
              };
 
-            this.AggStats = new Dictionary<AggStatsType, double[]>();
+            InitStats(ref AggStats, ref Stats);
+            InitStats(ref FAggStats,ref FStats);
+            InitStats(ref MAggStats,ref MStats);
+
+
+        }
+
+        private void InitStats(ref Dictionary<AggStatsType,double[]> agg, ref Dictionary<StatsType,Dictionary<int,int[]>> st)
+        {
+
+            agg = new Dictionary<AggStatsType, double[]>();
             foreach (var stype in Enum.GetValues(typeof(AggStatsType)))
             {
-                this.AggStats[(AggStatsType)stype] = Enumerable.Repeat((double)0, AggInits[(AggStatsType)stype]).ToArray();
+                agg[(AggStatsType)stype] = Enumerable.Repeat((double)0, AggInits[(AggStatsType)stype]).ToArray();
 
             }
 
-            this.Stats = new Dictionary<StatsType, Dictionary<int, int[]>>();
+            st = new Dictionary<StatsType, Dictionary<int, int[]>>();
             foreach (var stype in Enum.GetValues(typeof(StatsType)))
             {
-                this.Stats[(StatsType)stype] = new Dictionary<int, int[]>();
+                st[(StatsType)stype] = new Dictionary<int, int[]>();
                 for (int i = 0; i < Environment.Params.YearsToSimulate; i++)
                 {
-                    this.Stats[(StatsType)stype][i] = Enumerable.Repeat(0, Environment.Params.UnrealLifeLength+1).ToArray();
+                    st[(StatsType)stype][i] = Enumerable.Repeat(0, Environment.Params.UnrealLifeLength + 1).ToArray();
                 }
             }
-
         }
 
-        public void UpdateStats(StatsType stype, int year, int age)
+        public void UpdateStats(StatsType stype, int year, int age, PersonSex sex)
+        {
+            if (sex== PersonSex.Male)
+            {
+                this.MStats[stype][year][age]++;
+            }
+            else
+            {
+                this.FStats[stype][year][age]++;
+            }
+            this.Stats[stype][year][age]++;
+        }
+        public void UpdateStats(StatsType stype, int year, int age, PersonSex sex, int value)
         {
 
-            //lock (Stats)
-            //{
-                this.Stats[stype][year][age]++;
-            //}
-        }
-        public void UpdateStats(StatsType stype, int year, int age, int value)
-        {
-            //lock (Stats)
-            //{
-                this.Stats[stype][year][age] += value;
-            //}
+            if (sex == PersonSex.Male)
+            {
+                this.MStats[stype][year][age] += value;
+            }
+            else
+            {
+                this.FStats[stype][year][age] += value;
+            }
+
+            this.Stats[stype][year][age] += value;
+            
         }
 
         public void GatherStats()
         {
             foreach (var p in Environment.Population)
             {
-
-                if (p.IncidenceAge != -1
-                    && p.IncidenceAge < p.NaturalDeathAge
-                    && p.IncidenceAge + p.DateBirth <= Environment.CurrentDate
-                    && p.CurrentCancer.DiagnoseStage != -1)
-                {
-                    AggStats[AggStatsType.DiagnoseStagesDistribution][p.CurrentCancer.DiagnoseStage]++;
-                }
-
-
-                if (p.CurrentCancer != null && p.CurrentCancer.ScreeningStage != -1)
-                {
-                    AggStats[AggStatsType.ScreeningStagesDistribution][p.CurrentCancer.ScreeningStage]++;
-
-                }
-
-
-                CalcSurvivalParallel(p);
-
-                if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
-                {
-                    AggStats[AggStatsType.PeopleSaved][p.IncidenceAge]++;
-                    AggStats[AggStatsType.YearsSaved][p.IncidenceAge] += p.NaturalDeathAge - p.CancerDeathAge;
-                }
-
-                if (p.IsAlive
-                    && p.CurrentCancer != null
-                    && !p.CurrentCancer.IsCured
-                    && p.CurrentCancer.IsScreeningCured
-                    && p.CurrentCancer.ScreeningAge <= p.Age
-                    && p.CancerDeathAge <= p.Age
-                    )
-                {
-                    AggStats[AggStatsType.PeopleSaved][p.IncidenceAge]++;
-                    AggStats[AggStatsType.YearsSaved][p.IncidenceAge] += p.Age - p.CancerDeathAge;
-                }
+                GatherOne(p, ref AggStats);
+                GatherOne(p,ref FAggStats);
+                GatherOne(p,ref MAggStats);
 
             }
 
-            AggStats[AggStatsType.MortalityRates] = MakeRates(Stats[StatsType.CancerMortality], Stats[StatsType.AtRisk]);
-            AggStats[AggStatsType.ScreenedMortalityRates] = MakeRates(Stats[StatsType.CancerScreeningMortality], Stats[StatsType.AtRisk]);
-            AggStats[AggStatsType.IncidenceRates] = MakeRates(Stats[StatsType.Inicdence], Stats[StatsType.AtRisk]);
+            GatherCalc(AggStats, ref Stats);
+            GatherCalc(FAggStats,ref  FStats);
+            GatherCalc(MAggStats,ref MStats);
+        }
 
 
-            AggStats[AggStatsType.SurvivalScreening] = AggStats[AggStatsType.SurvivalScreening].Select(a => 100 * a / AggStats[AggStatsType.SurvivalScreening][0]).ToArray();
-            AggStats[AggStatsType.Survival] = AggStats[AggStatsType.Survival].Select(a => 100 * a / AggStats[AggStatsType.Survival][0]).ToArray();
+        private void GatherCalc(Dictionary<AggStatsType, double[]> agg, ref Dictionary<StatsType, Dictionary<int, int[]>> st)
+        {
+
+            agg[AggStatsType.MortalityRates] = GetAvgStats(st[StatsType.CancerMortality], st[StatsType.AtRisk]);
+            agg[AggStatsType.ScreenedMortalityRates] = GetAvgStats(st[StatsType.CancerScreeningMortality], st[StatsType.AtRisk]);
+            agg[AggStatsType.IncidenceRates] = GetAvgStats(st[StatsType.Inicdence], st[StatsType.AtRisk]);
+
+
+            agg[AggStatsType.SurvivalScreening] = agg[AggStatsType.SurvivalScreening].Select(a => 100 * a / agg[AggStatsType.SurvivalScreening][0]).ToArray();
+            agg[AggStatsType.Survival] = agg[AggStatsType.Survival].Select(a => 100 * a / agg[AggStatsType.Survival][0]).ToArray();
+
+        }
+
+        private void GatherOne(Person p, ref Dictionary<AggStatsType, double[]> agg)
+        {
+            if (p.IncidenceAge != -1
+                    && p.IncidenceAge < p.NaturalDeathAge
+                    && p.IncidenceAge + p.DateBirth <= Environment.CurrentDate
+                    && p.CurrentCancer.DiagnoseStage != -1)
+            {
+                agg[AggStatsType.DiagnoseStagesDistribution][p.CurrentCancer.DiagnoseStage]++;
+            }
+
+
+            if (p.CurrentCancer != null && p.CurrentCancer.ScreeningStage != -1)
+            {
+                agg[AggStatsType.ScreeningStagesDistribution][p.CurrentCancer.ScreeningStage]++;
+
+            }
+
+
+            CalcSurvivalParallel(p);
+
+            if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
+            {
+                agg[AggStatsType.PeopleSaved][p.IncidenceAge]++;
+                agg[AggStatsType.YearsSaved][p.IncidenceAge] += p.NaturalDeathAge - p.CancerDeathAge;
+            }
+
+            if (p.IsAlive
+                && p.CurrentCancer != null
+                && !p.CurrentCancer.IsCured
+                && p.CurrentCancer.IsScreeningCured
+                && p.CurrentCancer.ScreeningAge <= p.Age
+                && p.CancerDeathAge <= p.Age
+                )
+            {
+                agg[AggStatsType.PeopleSaved][p.IncidenceAge]++;
+                agg[AggStatsType.YearsSaved][p.IncidenceAge] += p.Age - p.CancerDeathAge;
+            }
 
         }
 
@@ -150,7 +191,7 @@ namespace MedicalModel
         }
 
 
-        private double[] FullSum(Dictionary<int, int[]> Data)
+        public double[] FullSum(Dictionary<int, int[]> Data)
         {
             var res = Enumerable.Repeat((double)0, Environment.Params.UnrealLifeLength+1).ToArray();
             foreach (var key in Data.Keys)
@@ -163,6 +204,47 @@ namespace MedicalModel
 
             return res;
         }
+
+        private double[] GetAvgStats(Dictionary<int, int[]> vals, Dictionary<int, int[]> atrisk)
+        {
+            var res = new List<List<double>>();
+            for (int i = 0; i < Environment.Params.UnrealLifeLength + 1; i++)
+            {
+                res.Add(new List<double>());
+            }
+
+            for (int i = 0; i < vals.Count; i++)
+            {
+                for (int j = 0; j < 100; j++)
+                {
+
+                    if (atrisk[i][j] > 0)
+                    {
+                        var val = Convert.ToDouble(vals[i][j]) / Convert.ToDouble(atrisk[i][j]);
+
+                        res[j].Add(val);
+                    }
+                    else
+                    {
+                        res[j].Add(0);
+                    }
+                }
+            }
+
+
+
+            var final = res.Select(a => {
+
+                if (a.Count > 0)
+                    return a.Average();
+                else
+                    return 0;
+
+            }).ToArray();
+
+            return final;
+        }
+
 
         private void CalcSurvival(Person p)
         {
@@ -221,6 +303,12 @@ namespace MedicalModel
 
         private void itterSurv(int beg, int fin, AggStatsType astype)
         {
+            if (beg<0)
+                beg = 0;
+            if (fin >= AggStats[astype].Count())
+                fin = AggStats[astype].Count() - 1;
+
+
             AggStats[astype][0]++;
             for (int i = 0; i < fin - beg; i++)
             {
