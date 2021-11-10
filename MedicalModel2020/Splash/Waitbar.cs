@@ -31,7 +31,7 @@ namespace MedicalModel
                 Ct = new System.Windows.Forms.DataVisualization.Charting.Chart();
                 this.Height = 250;
                 Ct.Height = 190;
-                Ct.Width = this.Width;
+                Ct.Width = this.Width-10;
                 Ct.Location = new System.Drawing.Point(0, 50);
 
                 var car = new System.Windows.Forms.DataVisualization.Charting.ChartArea();

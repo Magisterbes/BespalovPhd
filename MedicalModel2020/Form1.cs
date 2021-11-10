@@ -70,18 +70,13 @@ namespace MedicalModel
             var title = "Incidence Rates " + Title;
             ChartIt(title, SeriesChartType.Line, IncChart, data,x);
 
-            if (Title =="Male")
-            {
-                ChartIt("Train male incidence", SeriesChartType.Line, IncChart, Environment.Params.MaleTrainIncidence, x);
-            }
-            else if (Title == "Female")
-            {
-                ChartIt("Train female incidence", SeriesChartType.Line, IncChart, Environment.Params.FemaleTrainIncidence, x);
-            }
+            ChartIt("Train incidence", SeriesChartType.Line, IncChart, Environment.Params.TrainIncidence, x);
+   
 
 
             IncChart.ChartAreas[0].AxisX.Title = "Age";
             IncChart.ChartAreas[0].AxisY.Title = "Rates*100000";
+            IncChart.ChartAreas[0].AxisY.IsLogarithmic = true;
 
         }
 
@@ -98,20 +93,16 @@ namespace MedicalModel
             var title = "Mortality Rates " + Title;
             ChartIt(title, SeriesChartType.Line, MortChart, data,x);
 
-            title = "Mortality Rates (Screening) "+ Title;
-            ChartIt(title, SeriesChartType.Line, MortChart, screen,x);
+            //title = "Mortality Rates (Screening) "+ Title;
+            //ChartIt(title, SeriesChartType.Line, MortChart, screen,x);
 
-            if (Title == "Male")
-            {
-                ChartIt("Train male morrtality", SeriesChartType.Line, MortChart, Environment.Params.MaleTrainMortality, x);
-            }
-            else if (Title == "Female")
-            {
-                ChartIt("Train female morrtality", SeriesChartType.Line, MortChart, Environment.Params.FemaleTrainMortality, x);
-            }
+            
+             ChartIt("Traiт mortality", SeriesChartType.Line, MortChart, Environment.Params.TrainMortality, x);
+            
 
             MortChart.ChartAreas[0].AxisX.Title = "Age";
             MortChart.ChartAreas[0].AxisY.Title = "Rates*100000";
+            MortChart.ChartAreas[0].AxisY.IsLogarithmic = true;
         }
 
         void DrawDiagnose()
@@ -160,7 +151,8 @@ namespace MedicalModel
 
             for (int j = 0; j < x.Length; j++)
             {
-                ThisChart.Series[Title].Points.AddXY(x[j], data[j]);
+                if (data[j] != 0)
+                    ThisChart.Series[Title].Points.AddXY(x[j], data[j]);
             }
             ThisChart.Series[Title].BorderWidth = 2;
             ThisChart.ChartAreas[0].AxisX.Minimum = 0;
@@ -176,16 +168,16 @@ namespace MedicalModel
 
         void DrawSaved()
         {
-            var pep = Environment.Stats.AggStats[AggStatsType.PeopleSaved];
+            //var pep = Environment.Stats.AggStats[AggStatsType.PeopleSaved];
             var yer = Environment.Stats.AggStats[AggStatsType.YearsSaved];
 
-            var data = pep.Zip(yer, (p, y) => (double)y / (double)p).ToArray();
+            //var data = pep.Zip(yer, (p, y) => (double)y / (double)p).ToArray();
 
             SaveChart.Series.Clear();
 
-            var title = "Mean saved years by person for different incidence ages";
+            var title = "Saved years";
 
-            ChartIt(title, SeriesChartType.Line, SaveChart, data);
+            ChartIt(title, SeriesChartType.Column, SaveChart, yer);
 
 
             SaveChart.ChartAreas[0].AxisX.Title = "Age";
@@ -234,11 +226,9 @@ namespace MedicalModel
             
 
             DrawDemography();
-            DrawIncidence(Environment.Stats.FAggStats,true,"Female");
-            DrawIncidence(Environment.Stats.MAggStats, false, "Male");
+            DrawIncidence(Environment.Stats.AggStats,true,"");
             DrawDiagnose();
-            DrawMortality(Environment.Stats.FAggStats, true, "Female");
-            DrawMortality(Environment.Stats.MAggStats, false, "Male");
+            DrawMortality(Environment.Stats.AggStats, true, "");
             DrawSaved();
             DrawSurvival();
 
@@ -271,18 +261,13 @@ namespace MedicalModel
         {
             List<string> res = new List<string>();
 
-            res.Add("GrowthRateDistributionFemale:" + string.Join(", ", Environment.Params.GrowthRateDistributionFemale.Coefs));
-            res.Add("IncidenceHazardFemale:" + string.Join(", ", Environment.Params.IncidenceHazardFemale.Constants));
-            res.Add("DiagnoseHazardFemale:" + string.Join(", ", Environment.Params.DiagnoseHazardFemale.Constants));
-            res.Add("MalignancyHazardFemale:" + string.Join(", ", Environment.Params.MalignancyHazardFemale.Constants));
-            res.Add("CancerDeathHazardFemale:" + string.Join(", ", Environment.Params.CancerDeathHazardFemale.Constants));
+            res.Add("GrowthRateDistribution:" + string.Join(", ", Environment.Params.GrowthRateDistribution.Coefs));
+            res.Add("IncidenceHazard:" + string.Join(", ", Environment.Params.IncidenceHazard.Constants));
+            res.Add("DiagnoseHazard:" + string.Join(", ", Environment.Params.DiagnoseHazard.Constants));
+            res.Add("MalignancyHazard:" + string.Join(", ", Environment.Params.MalignancyHazard.Constants));
+            res.Add("CancerDeathHazard:" + string.Join(", ", Environment.Params.CancerDeathHazard.Constants));
 
 
-            res.Add("GrowthRateDistributionMale:" + string.Join(", ", Environment.Params.GrowthRateDistributionMale.Coefs));
-            res.Add("IncidenceHazardMale:" + string.Join(", ", Environment.Params.IncidenceHazardMale.Constants));
-            res.Add("DiagnoseHazardMale:" + string.Join(", ", Environment.Params.DiagnoseHazardMale.Constants));
-            res.Add("MalignancyHazardMale:" + string.Join(", ", Environment.Params.MalignancyHazardMale.Constants));
-            res.Add("CancerDeathHazardMale:" + string.Join(", ", Environment.Params.CancerDeathHazardMale.Constants));
 
             AddLog(string.Join("\r\n", res));
           
@@ -328,6 +313,8 @@ namespace MedicalModel
             {
                 Process.Start("notepad.exe", "parameters.txt");
             }
+
+
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)

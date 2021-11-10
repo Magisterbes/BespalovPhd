@@ -1,0 +1,77 @@
+#Demography
+
+YearsToSimulate:30
+InitPopulation:1000000
+MaleVsFemale:0.485
+UnrealLifeLength:110
+#MeanBornProbabilityPerYear: 0.066
+#LowerestFertilityAge: 15
+#HighestFertilityAge: 44
+
+TrainDataFilename: train_set.csv
+
+
+ 
+
+#Natural History Parameters 
+IncidenceHazardFemale: loglog,22.4,4
+MalignancyHazardFemale: exp,1
+
+#Growth Rate is percent per year
+GrowthRateDistributionFemale: uniform,  1.8, 3
+
+#It's the hazard dependent on tumor size, not time.
+DiagnoseHazardFemale: exp,3.7
+CancerDeathHazardFemale: exp,1
+
+
+IncidenceHazardMale: loglog,24,4.5
+MalignancyHazardMale: exp,1
+GrowthRateDistributionMale: uniform, 2, 3
+DiagnoseHazardMale: exp,3.2
+CancerDeathHazardMale: exp,1
+
+StageCriteria: 5n,30m,40m
+ReoccurrenceProbability: 0.2
+
+#Treatment Parameters
+
+TreatmentEfficiency: 0.95, 0.85, 0.75, 0.45
+Complications:0.1
+
+#Ages array 30-40,40-50,50-60,70-80,80+
+AgeCureConstants: 1,0.9,0.8,0.7,0.7
+
+#Factors are multiplied between each other and by conditional probability
+
+FactorsRR: Smoking@1.1,Obesity@1.05,Activity@0.95
+AgeIrrelevantFactorsRR: Gene@1.05
+
+#At early age  Smoking -> 1.1^0.1 = 1.009, at old age 1.1^2 = 1.21
+
+FactorAgeCorrection: 0.1,2
+
+#Screening Parameters
+
+ScreeningDate: 10
+StartAge: 50
+FinishAge: 60
+Freqency: 2
+SelectedTest: 70
+ParticipationRate: 0.5
+
+
+TestParameters: 50,60,70,80
+TestTP: 0.6,0.7,0.9,0.95
+TestFP: 0.05,0.07,0.1,0.15
+
+#Economy
+
+TestPerPersonPrice: 1
+ScreeningPrice: 1
+StageTreatementPrice: 1,2,3,4
+ComplicationsPrice: 1
+ReoccurrenceCost: 1
+
+
+

@@ -21,24 +21,11 @@ namespace MedicalModel
         public static Person GenerateAgeAndGender(Parameters prms, int id, bool isNew)
         {
             var p = new Person(id);
-            var sexRand = Tech.NextDouble(false);
+            
+            GetBirthday(prms.InitAgeDist, p, isNew);
+            GetNaturalDeath(prms.Aging, p);
+            GetIncidence(prms.IncidenceHazard, p);
 
-            if(sexRand > prms.MaleVsFemale)
-            {
-                p.Sex = PersonSex.Female;
-                GetBirthday(prms.InitAgeDistFemale, p, isNew);
-                GetNaturalDeath(prms.FemaleAging, p);
-                GetIncidence(prms.IncidenceHazardFemale, p);
-
-            }
-            else
-            {
-                p.Sex = PersonSex.Male;
-                GetBirthday(prms.InitAgeDistMale, p, isNew);
-                GetNaturalDeath(prms.MaleAging, p);
-                GetIncidence(prms.IncidenceHazardMale, p);
-
-            }
 
             if (p.IncidenceAge <= p.Age)
             {

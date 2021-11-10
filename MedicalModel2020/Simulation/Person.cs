@@ -6,11 +6,6 @@ using System.Threading.Tasks;
 using MathNet.Numerics;
 using Meta.Numerics;
 
-public enum PersonSex
-{
-    Male,
-    Female
-}
 
 public enum DeathStatus
 {
@@ -30,7 +25,6 @@ namespace MedicalModel
     {
 
         public int DateBirth { set; get; }
-        public PersonSex Sex { set; get; }
         public bool IsAlive { set; get; }
         public int NaturalDeathAge { set; get; }
         public int CancerDeathAge { set; get; }

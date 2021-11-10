@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MedicalModel
 {
@@ -7,10 +9,13 @@ namespace MedicalModel
     {
         public double[] Constants;
 
+
         public void SetConstant(double[] cnt)
         {
             Constants = cnt;
         }
+
+        public abstract void UpdateHazard();
 
         public abstract double GetValue(double time, double covariates);
         public double GetValue(double time)
@@ -27,21 +32,7 @@ namespace MedicalModel
         public abstract double H0(double start, double end);
         public abstract double iH0(double value);
 
-        public double T(double start, double covariates)
-        {
-            var ecov = Math.Exp(covariates);
-            var tH = H0(0, start);
-            var r = -Math.Log(Tech.NextDouble(false));
-            var val = tH + r / ecov;
-            var T = iH0(val);
-
-            if (T == double.PositiveInfinity|| T == double.NegativeInfinity)
-            {
-                return (double)Int16.MaxValue;
-            }
-
-            return Math.Abs(T);
-        }
+        public abstract double T(double start, double covariates);
 
     }
 
@@ -81,6 +72,27 @@ namespace MedicalModel
 
             return iH;
         }
+
+        public override double T(double start, double covariates)
+        {
+            var ecov = Math.Exp(covariates);
+            var tH = H0(0, start);
+            var r = -Math.Log(Tech.NextDouble(false));
+            var val = tH + r / ecov;
+            var T = iH0(val);
+
+            if (T == double.PositiveInfinity || T == double.NegativeInfinity)
+            {
+                return (double)Int16.MaxValue;
+            }
+
+            return Math.Abs(T);
+        }
+
+        public override void UpdateHazard()
+        {
+             
+        }
     }
 
 
@@ -111,6 +123,27 @@ namespace MedicalModel
         public override double iH0(double value)
         {
             return value/(Math.Exp(-L));
+        }
+
+        public override double T(double start, double covariates)
+        {
+            var ecov = Math.Exp(covariates);
+            var tH = H0(0, start);
+            var r = -Math.Log(Tech.NextDouble(false));
+            var val = tH + r / ecov;
+            var T = iH0(val);
+
+            if (T == double.PositiveInfinity || T == double.NegativeInfinity)
+            {
+                return (double)Int16.MaxValue;
+            }
+
+            return Math.Abs(T);
+        }
+
+        public override void UpdateHazard()
+        {
+
         }
 
 
@@ -155,7 +188,112 @@ namespace MedicalModel
             return Math.Pow(under, 1 / k);
         }
 
+        public override double T(double start, double covariates)
+        {
+            var ecov = Math.Exp(covariates);
+            var tH = H0(0, start);
+            var r = -Math.Log(Tech.NextDouble(false));
+            var val = tH + r / ecov;
+            var T = iH0(val);
+
+            if (T == double.PositiveInfinity || T == double.NegativeInfinity)
+            {
+                return (double)Int16.MaxValue;
+            }
+
+            return Math.Abs(T);
+        }
+
+        public override void UpdateHazard()
+        {
+
+        }
 
     }
+
+
+    public class Piecewise : Hazard
+    {
+        public List<double> Years;
+        public double[] L { get => Constants; }
+
+        public Dictionary<int, double> ValueByAge;
+    
+
+
+        public Piecewise(double[] constants, double[] years)
+        {
+            this.Constants = constants ;
+            this.Years = years.ToList();
+            
+            MakeHazards();
+            
+        }
+
+
+        private void MakeHazards()
+        {
+            ValueByAge = new Dictionary<int, double>();
+            var j = 0;
+            ValueByAge[j] = Math.Exp(Constants[0]);
+            j = 1;
+
+            for (int i = 1; i < Years.Count; i++)
+            {
+
+                while (Years[i] > j)
+                {
+                    var newval = ValueByAge[j-1] * Math.Exp(Constants[i]);
+                    this.ValueByAge.Add(j, newval);
+
+                    j++;
+                }
+
+            }
+        }
+
+
+        public override double GetValue(double time, double covariates)
+        {
+            return this.ValueByAge[(int)time];
+        }
+
+        public override double GetLog(double time, double covariates)
+        {
+            return  Math.Log(this.ValueByAge[(int)time]);
+        }
+
+        public override double H0(double start, double end)
+        {
+            return 0;
+        }
+
+        public override double iH0(double value)
+        {
+            return 0;
+        }
+
+        public override double T(double start, double covariates)
+        {
+                       
+            for (int i = 0; i < Environment.Params.UnrealLifeLength; i++)
+            {
+                if (Tech.CheckByProb(ValueByAge[i]) == 1)
+                {
+                    return i;
+                }
+            }
+           
+
+
+            return Environment.Params.UnrealLifeLength;
+        }
+
+        public override void UpdateHazard()
+        {
+            MakeHazards();
+        }
+    }
+
 
 }

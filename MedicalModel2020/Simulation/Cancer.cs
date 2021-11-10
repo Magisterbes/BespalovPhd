@@ -19,6 +19,7 @@ namespace MedicalModel
         public int ScreeningStage { get; set; }
         public bool IsScreeningCured { get; set; }
         public double GrowthRate { get; set; }
+        public double Reoccurred { get; set; }
 
         private Hazard DiagnoseHazard;
         private Hazard CancerDeathHazard;
@@ -32,21 +33,11 @@ namespace MedicalModel
             ScreeningAge = -1;
             MalignancyAge = -1;
 
-            if (p.Sex == PersonSex.Female)
-            {
-                GrowthRate = Environment.Params.GrowthRateDistributionFemale.GenerateRandom();
-                DiagnoseHazard = Environment.Params.DiagnoseHazardFemale;
-                CancerDeathHazard = Environment.Params.CancerDeathHazardFemale;
-                MalignancyHazard = Environment.Params.MalignancyHazardFemale;
-            }
-            else
-            {
-                GrowthRate = Environment.Params.GrowthRateDistributionMale.GenerateRandom();
-                DiagnoseHazard = Environment.Params.DiagnoseHazardMale;
-                CancerDeathHazard = Environment.Params.CancerDeathHazardMale;
-                MalignancyHazard = Environment.Params.MalignancyHazardMale;
-            }
-
+            GrowthRate = Environment.Params.GrowthRateDistribution.GenerateRandom();
+            DiagnoseHazard = Environment.Params.DiagnoseHazard;
+            CancerDeathHazard = Environment.Params.CancerDeathHazard;
+            MalignancyHazard = Environment.Params.MalignancyHazard;
+            
             CalculateHistory(p);
 
         }
@@ -62,7 +53,7 @@ namespace MedicalModel
             StagesAges = Environment.Params.StageCriteria.GetStages(GrowthRate,IncidenceAge,MalignancyAge);
             DiagnoseAge = IncidenceAge + SimulateDiagnoseAge();
             StagesAges[stages-1] = StagesAges[stages - 2] + (int)CancerDeathHazard.T(0, 0);
-
+            Reoccurred = Tech.CheckByProb(Environment.Params.ReoccurrenceProbability); 
 
             //See if person has died earier or before diagnose
             p.CancerDeathAge = StagesAges[stages - 1];

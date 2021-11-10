@@ -20,7 +20,6 @@ namespace MedicalModel
 
         static public void Adjust(Form1 mainForm)
         {
-
             double[] initialPosition = GatherParameters();
 
             var func = new ObjectiveFunction(initialPosition.Length);
@@ -28,13 +27,13 @@ namespace MedicalModel
 
             opt.InitialPosition = initialPosition;
 
-            opt.Temperature = 1;
+            opt.Temperature = 10;
             opt.StopTemperature = 0.01;
-            opt.CoolingRatio = 0.999;
+            opt.CoolingRatio = 0.95;
             opt.IsUseCriterion = false;
-            opt.Iteration = 50;
-            
-            
+            opt.Iteration = 100;
+
+
 
             opt.Init();
             clsUtil.DebugValue(opt);
@@ -55,8 +54,9 @@ namespace MedicalModel
             }
 
             mainForm.AddLog(string.Format("Eval:{0}", opt.Result.Eval));
-        }
 
+
+        }
 
 
         public static double[] ReverseNorm(double[] x)
@@ -75,18 +75,13 @@ namespace MedicalModel
         {
             List<double> res = new List<double>();
 
-            res.AddRange(Environment.Params.GrowthRateDistributionFemale.Coefs);
-            res.AddRange(Environment.Params.IncidenceHazardFemale.Constants);
-            res.AddRange(Environment.Params.DiagnoseHazardFemale.Constants);
-            res.AddRange(Environment.Params.MalignancyHazardFemale.Constants);
-            res.AddRange(Environment.Params.CancerDeathHazardFemale.Constants);
+            res.AddRange(Environment.Params.GrowthRateDistribution.Coefs);
+            res.AddRange(Environment.Params.IncidenceHazard.Constants);
+            res.AddRange(Environment.Params.DiagnoseHazard.Constants);
+            res.AddRange(Environment.Params.MalignancyHazard.Constants);
+            res.AddRange(Environment.Params.CancerDeathHazard.Constants);
 
-
-            res.AddRange(Environment.Params.GrowthRateDistributionMale.Coefs);
-            res.AddRange(Environment.Params.IncidenceHazardMale.Constants);
-            res.AddRange(Environment.Params.DiagnoseHazardMale.Constants);
-            res.AddRange(Environment.Params.MalignancyHazardMale.Constants);
-            res.AddRange(Environment.Params.CancerDeathHazardMale.Constants);
+            
 
             paramNorms = res.Select(a => a * 2).ToList();
 

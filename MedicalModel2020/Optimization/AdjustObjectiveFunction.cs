@@ -9,9 +9,14 @@ using System.Windows.Forms;
 
 namespace MedicalModel
 {
-    class ObjectiveFunction : LibOptimization.Optimization.absObjectiveFunction
+    class ObjectiveFunction: LibOptimization.Optimization.absObjectiveFunction
     {
         int _size = 2;
+        int _simYears = 30;
+        int _minAge = 25;
+        int _maxAge = 85;
+        int _popSize = 100000;
+        int _delay = 5;
         Parameters savedParams;
 
         public ObjectiveFunction(int size)
@@ -33,8 +38,8 @@ namespace MedicalModel
 
             ToParams(x);
 
-            Environment.Params.YearsToSimulate = 50;
-            Environment.Params.InitPopulation = 200000;
+            Environment.Params.YearsToSimulate = _simYears;
+            Environment.Params.InitPopulation = _popSize;
             Environment.Params.ScreeningDate = 100;
 
             Environment.Start();
@@ -57,37 +62,52 @@ namespace MedicalModel
         private double CalcF()
         {
 
-            var finc = GetAvgStats(Environment.Stats.FStats[StatsType.Inicdence], Environment.Stats.FStats[StatsType.AtRisk]);
-            var fmort = GetAvgStats(Environment.Stats.FStats[StatsType.CancerMortality], Environment.Stats.FStats[StatsType.AtRisk]);
-            var minc = GetAvgStats(Environment.Stats.MStats[StatsType.Inicdence], Environment.Stats.MStats[StatsType.AtRisk]);
-            var mmort = GetAvgStats(Environment.Stats.MStats[StatsType.CancerMortality], Environment.Stats.MStats[StatsType.AtRisk]);
+           var minc = GetAvgStats(Environment.Stats.Stats[StatsType.Inicdence], Environment.Stats.Stats[StatsType.AtRisk]);
+            var mmort = GetAvgStats(Environment.Stats.Stats[StatsType.CancerMortality], Environment.Stats.Stats[StatsType.AtRisk]);
 
-            var F = Enumerable.Repeat((double)0,50).ToList();
-            var delay = 30;
-            for (int i = delay; i < 80; i++)
+            var F1 = Enumerable.Repeat((double)0, _maxAge-_minAge).ToList();
+            var F2 = Enumerable.Repeat((double)0, _maxAge - _minAge).ToList();
+
+            for (int i = _minAge; i < _maxAge-5; i++)
             {
-                F[i-delay] += LogDistance(Convert.ToDouble(Environment.Params.TrainData["incidence male"][i]),minc[i], Convert.ToDouble(Environment.Params.TrainData["male population"][i]));
-                F[i - delay] += LogDistance(Convert.ToDouble(Environment.Params.TrainData["incidence female"][i]), finc[i], Convert.ToDouble(Environment.Params.TrainData["female population"][i]));
-                F[i - delay] += LogDistance(Convert.ToDouble(Environment.Params.TrainData["mortality cancer female"][i]), fmort[i], Convert.ToDouble(Environment.Params.TrainData["female population"][i]));
-                F[i - delay] += LogDistance(Convert.ToDouble(Environment.Params.TrainData["mortality cancer male"][i]), mmort[i], Convert.ToDouble(Environment.Params.TrainData["male population"][i]));
+                var inc = 0.0;
+                var minc_val = new List<double>();
+                var mmort_val = new List<double>();
+                var mort = 0.0;
+                var pop = 0.0;
+                for (int j = 0; j < 5; j++)
+                {
+                    inc += Convert.ToDouble(Environment.Params.TrainData["incidence"][i+j]);
+                    mort += Convert.ToDouble(Environment.Params.TrainData["mortality cancer"][i + j]);
+                    pop += Convert.ToDouble(Environment.Params.TrainData["population"][i + j]);
+                    minc_val.Add(minc[i + j]);
+                    mmort_val.Add(mmort[i + j]);
+                }
+
+                F1[i- _minAge] = LogDistance(inc, minc_val.Average(), pop);
+                F2[i - _minAge] = LogDistance(mort, mmort_val.Average(), pop);
             }
 
-
-            ////F = F.Select(a =>
-            ////{
-            ////    if (a > F.Average() * 1.5)
-            ////    {
-            ////        return F.Average() * 1.5;
-            ////    }
-
-            ////    return a;
-            ////}).ToList();
+            var F = F1;
+            F.AddRange(F2);
 
             SplashUtility<Waitbar>.DrawPlot(F.ToArray());
             SplashUtility<Waitbar>.SetStatusText("Error function value: " + Math.Round(F.Sum(),4).ToString());
+
+
             return F.Sum();
         }
-        
+
+        private List<double> AggErrors(List<double> F)
+        {
+             return F
+                    .Select((s, i) => new { Value = s, Index = i })
+                    .GroupBy(x => (int)(x.Index / 5))
+                    .Select(grp => grp.Select(x => x.Value).Average())
+                    .ToList();
+        }
+
+
         private double LogDistance(double a, double b, double c)
         {
             if (a == 0 || c==0)
@@ -95,16 +115,16 @@ namespace MedicalModel
                 if (b == 0)
                     return 0;
                 else
-                    return Math.Pow(Math.Sqrt(b), 2);
+                    return Math.Pow(Math.Log(b), 2);
             }
 
             if (b ==0)
             {
-                return Math.Pow(Math.Sqrt(a / c), 2);
+                return 3;
             }
 
 
-            return Math.Pow(Math.Sqrt(a/c) - Math.Sqrt(b), 2);
+            return Math.Pow(Math.Log(a/c) - Math.Log(b), 2);
         }
 
         private double[] GetAvgStats(Dictionary<int,int[]> vals, Dictionary<int, int[]> atrisk)
@@ -115,9 +135,9 @@ namespace MedicalModel
                 res.Add(new List<double>());
             }
             
-            for (int i = 25; i < vals.Count; i++)
+            for (int i = _delay; i < vals.Count; i++)
             {
-                for (int j = 30; j < 80; j++)
+                for (int j = _minAge; j < _maxAge; j++)
                 {
 
                     if (atrisk[i][j] > 0)
@@ -164,17 +184,16 @@ namespace MedicalModel
             var xx = AdjustParams.ReverseNorm(x.ToArray()).ToList();
 
             var counter = 0;
-            SetParam(ref Environment.Params.GrowthRateDistributionFemale.Coefs, xx, ref counter);
-            SetParam(ref Environment.Params.IncidenceHazardFemale.Constants, xx, ref counter);
-            SetParam(ref Environment.Params.DiagnoseHazardFemale.Constants, xx, ref counter);
-            SetParam(ref Environment.Params.MalignancyHazardFemale.Constants, xx, ref counter);
-            SetParam(ref Environment.Params.CancerDeathHazardFemale.Constants, xx, ref counter);
 
-            SetParam(ref Environment.Params.GrowthRateDistributionMale.Coefs, xx, ref counter);
-            SetParam(ref Environment.Params.IncidenceHazardMale.Constants, xx, ref counter);
-            SetParam(ref Environment.Params.DiagnoseHazardMale.Constants, xx, ref counter);
-            SetParam(ref Environment.Params.MalignancyHazardMale.Constants, xx, ref counter);
-            SetParam(ref Environment.Params.CancerDeathHazardMale.Constants, xx, ref counter);
+            SetParam(ref Environment.Params.GrowthRateDistribution.Coefs, xx, ref counter);
+            SetParam(ref Environment.Params.IncidenceHazard.Constants, xx, ref counter);
+            Environment.Params.IncidenceHazard.UpdateHazard();
+            SetParam(ref Environment.Params.DiagnoseHazard.Constants, xx, ref counter);
+            Environment.Params.DiagnoseHazard.UpdateHazard();
+            SetParam(ref Environment.Params.MalignancyHazard.Constants, xx, ref counter);
+            Environment.Params.MalignancyHazard.UpdateHazard();
+            SetParam(ref Environment.Params.CancerDeathHazard.Constants, xx, ref counter);
+            Environment.Params.CancerDeathHazard.UpdateHazard();
 
 
 

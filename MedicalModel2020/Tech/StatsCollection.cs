@@ -33,11 +33,7 @@ namespace MedicalModel
     class StatsCollection
     {
         public Dictionary<StatsType, Dictionary<int, int[]>> Stats;
-        public Dictionary<StatsType, Dictionary<int, int[]>> FStats;
-        public Dictionary<StatsType, Dictionary<int, int[]>> MStats;
         public Dictionary<AggStatsType, double[]> AggStats;
-        public Dictionary<AggStatsType, double[]> FAggStats;
-        public Dictionary<AggStatsType, double[]> MAggStats;
         private Dictionary<AggStatsType, int> AggInits;
 
         public StatsCollection(int LastYear)
@@ -58,8 +54,6 @@ namespace MedicalModel
              };
 
             InitStats(ref AggStats, ref Stats);
-            InitStats(ref FAggStats,ref FStats);
-            InitStats(ref MAggStats,ref MStats);
 
 
         }
@@ -85,32 +79,14 @@ namespace MedicalModel
             }
         }
 
-        public void UpdateStats(StatsType stype, int year, int age, PersonSex sex)
+        public void UpdateStats(StatsType stype, int year, int age)
         {
-            if (sex== PersonSex.Male)
-            {
-                this.MStats[stype][year][age]++;
-            }
-            else
-            {
-                this.FStats[stype][year][age]++;
-            }
             this.Stats[stype][year][age]++;
         }
-        public void UpdateStats(StatsType stype, int year, int age, PersonSex sex, int value)
+        public void UpdateStats(StatsType stype, int year, int age, int value)
         {
 
-            if (sex == PersonSex.Male)
-            {
-                this.MStats[stype][year][age] += value;
-            }
-            else
-            {
-                this.FStats[stype][year][age] += value;
-            }
-
-            this.Stats[stype][year][age] += value;
-            
+            this.Stats[stype][year][age] += value;   
         }
 
         public void GatherStats()
@@ -118,14 +94,10 @@ namespace MedicalModel
             foreach (var p in Environment.Population)
             {
                 GatherOne(p, ref AggStats);
-                GatherOne(p,ref FAggStats);
-                GatherOne(p,ref MAggStats);
 
             }
 
             GatherCalc(AggStats, ref Stats);
-            GatherCalc(FAggStats,ref  FStats);
-            GatherCalc(MAggStats,ref MStats);
         }
 
 
@@ -165,7 +137,11 @@ namespace MedicalModel
             if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
             {
                 agg[AggStatsType.PeopleSaved][p.IncidenceAge]++;
-                agg[AggStatsType.YearsSaved][p.IncidenceAge] += p.NaturalDeathAge - p.CancerDeathAge;
+
+                for (int i = p.CancerDeathAge; i < p.NaturalDeathAge; i++)
+                {
+                    agg[AggStatsType.YearsSaved][i] += 1;
+                }                
             }
 
             if (p.IsAlive
@@ -245,35 +221,21 @@ namespace MedicalModel
             return final;
         }
 
-
-        private void CalcSurvival(Person p)
+        private double[] Smooth(double[] input)
         {
+            double[] final = (double[])input.Clone();
 
-
-            if (p.DeathCause == DeathStatus.NaturalSavedByScreening ||
-                p.DeathCause == DeathStatus.NaturalCured ||
-                p.DeathCause == DeathStatus.Cancer)
+            for (int i = 2; i < input.Length-2; i++)
             {
+                final[i] = input[i - 2] * 0.05 + input[i - 1] * 0.2 + input[i] * 0.5 + input[i + 1] * 0.2 +
+                    input[i + 2] * 0.05;
 
-                if (p.CurrentCancer.ScreeningAge != -1)
-                {
-                    if (p.CurrentCancer.IsScreeningCured)
-                        itterSurv(p.CurrentCancer.DiagnoseAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
-                    else
-                        itterSurv(p.CurrentCancer.DiagnoseAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
-                }
-                else
-                {
-                    if (p.CurrentCancer.IsCured)
-                        itterSurv(p.CurrentCancer.DiagnoseAge, p.NaturalDeathAge, AggStatsType.Survival);
-                    else
-                        itterSurv(p.CurrentCancer.DiagnoseAge, p.CancerDeathAge, AggStatsType.Survival);
-                }
-                
-                
+
+
             }
-
+            return final;
         }
+
 
         private void CalcSurvivalParallel(Person p)
         {
