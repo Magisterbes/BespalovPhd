@@ -1,26 +1,27 @@
 #Demography
 
 YearsToSimulate:30
-InitPopulation:500000
+InitPopulation:1000000
 UnrealLifeLength:110
 
 TrainDataFilename: train_set.csv
  
 #Natural History Parameters 
-IncidenceHazard: piecewise, 0@-11.6;30@0.04;50@0.085;60@0.09;70@0.094;200@-0.03
+IncidenceHazard: piecewise, 0@-13.3;30@0.1;50@0.12;60@0.07;70@0.018;200@-0.05
 MalignancyHazard: exp,0.77
 
 #Growth Rate is percent per year
-GrowthRateDistribution: uniform,  1.7, 2.78
+GrowthRateDistribution: uniform,  1.63, 2.68
 
 #It's the hazard dependent on tumor size, not time.
-DiagnoseHazard: exp,3.5
-CancerDeathHazard: exp,1.19
+DiagnoseHazard: exp,3.56
+CancerDeathHazard: exp,1.2
 
 
 StageCriteria: 5n,30m,40m
 ReoccurrenceProbability: 0.2
 TreatmentMortalityAdjustment: 1
+ProportionOfAggressive: 0.5
 
 #Treatment Parameters
 

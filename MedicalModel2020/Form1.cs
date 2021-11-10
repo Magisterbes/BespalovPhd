@@ -62,6 +62,7 @@ namespace MedicalModel
         void DrawIncidence(Dictionary<AggStatsType,double[]> agg, bool clear, string Title)
         {
             var data = agg[AggStatsType.IncidenceRates].Select(a=>a*100000).ToArray() ;
+            var diagData = agg[AggStatsType.DiagnosisRates].Select(a => a * 100000).ToArray();
             var x = Enumerable.Range(0, 95).Select(a => (double)a).ToArray();
 
             if (clear)
@@ -70,8 +71,9 @@ namespace MedicalModel
             var title = "Incidence Rates " + Title;
             ChartIt(title, SeriesChartType.Line, IncChart, data,x);
 
-            ChartIt("Train incidence", SeriesChartType.Line, IncChart, Environment.Params.TrainIncidence, x);
-   
+            ChartIt("Train diagnosis rate", SeriesChartType.Line, IncChart, Environment.Params.TrainIncidence, x);
+            ChartIt("Simulation diagnosis rate", SeriesChartType.Line, IncChart, diagData, x);
+
 
 
             IncChart.ChartAreas[0].AxisX.Title = "Age";

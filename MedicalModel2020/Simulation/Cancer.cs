@@ -63,6 +63,9 @@ namespace MedicalModel
             }
 
 
+            if (p.DateBirth + DiagnoseAge < Environment.Params.YearsToSimulate && (p.DateBirth + DiagnoseAge>=0)&& DiagnoseAge<Environment.Params.UnrealLifeLength)
+                Environment.Stats.UpdateStats(StatsType.Diagnosis, p.DateBirth+ DiagnoseAge, DiagnoseAge);
+
             //Check if it was diagnosed and cured
             for (int i = 0; i < StagesAges.Length; i++)
             {

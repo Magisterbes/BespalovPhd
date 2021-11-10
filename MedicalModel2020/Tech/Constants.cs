@@ -33,6 +33,7 @@ namespace MedicalModel
         private Criteria stageCriteria;
         private double reoccurrenceProbability;
         private double treatmentMortalityAdjustment;
+        private double proportionOfAggressive;
 
 
         private double[] treatmentEfficiency = new double[] { 0.75, 0.85, 0.95 };
@@ -88,6 +89,7 @@ namespace MedicalModel
         public Criteria StageCriteria { get => stageCriteria; set => stageCriteria = value; }
         public double ReoccurrenceProbability { get => reoccurrenceProbability; set => reoccurrenceProbability = value; }
         public double TreatmentMortalityAdjustment { get => treatmentMortalityAdjustment; set => treatmentMortalityAdjustment = value; }
+        public double ProportionOfAggressive { get => proportionOfAggressive; set => proportionOfAggressive = value; }
 
 
 

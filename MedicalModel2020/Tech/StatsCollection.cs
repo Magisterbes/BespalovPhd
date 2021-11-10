@@ -13,7 +13,8 @@ namespace MedicalModel
         Inicdence,
         CancerMortality,
         CancerScreeningMortality,
-        AtRisk
+        AtRisk,
+        Diagnosis
     }
 
     public enum AggStatsType
@@ -27,7 +28,8 @@ namespace MedicalModel
         ScreenedMortalityRates,
         IncidenceRates,
         Survival,
-        SurvivalScreening
+        SurvivalScreening,
+        DiagnosisRates
     }
 
     class StatsCollection
@@ -50,7 +52,8 @@ namespace MedicalModel
                 {AggStatsType.ScreenedMortalityRates, Environment.Params.YearsToSimulate+1},
                 {AggStatsType.IncidenceRates, Environment.Params.YearsToSimulate+1},
                 {AggStatsType.Survival, 100},
-                {AggStatsType.SurvivalScreening, 100}
+                {AggStatsType.SurvivalScreening, 100},
+                {AggStatsType.DiagnosisRates, 100}
              };
 
             InitStats(ref AggStats, ref Stats);
@@ -107,6 +110,7 @@ namespace MedicalModel
             agg[AggStatsType.MortalityRates] = GetAvgStats(st[StatsType.CancerMortality], st[StatsType.AtRisk]);
             agg[AggStatsType.ScreenedMortalityRates] = GetAvgStats(st[StatsType.CancerScreeningMortality], st[StatsType.AtRisk]);
             agg[AggStatsType.IncidenceRates] = GetAvgStats(st[StatsType.Inicdence], st[StatsType.AtRisk]);
+            agg[AggStatsType.DiagnosisRates] = GetAvgStats(st[StatsType.Diagnosis], st[StatsType.AgeDistributions]);
 
 
             agg[AggStatsType.SurvivalScreening] = agg[AggStatsType.SurvivalScreening].Select(a => 100 * a / agg[AggStatsType.SurvivalScreening][0]).ToArray();
@@ -218,7 +222,7 @@ namespace MedicalModel
 
             }).ToArray();
 
-            return final;
+            return Smooth(final);
         }
 
         private double[] Smooth(double[] input)

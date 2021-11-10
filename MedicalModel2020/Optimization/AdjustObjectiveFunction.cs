@@ -15,7 +15,7 @@ namespace MedicalModel
         int _simYears = 30;
         int _minAge = 25;
         int _maxAge = 85;
-        int _popSize = 100000;
+        int _popSize = 500000;
         int _delay = 5;
         Parameters savedParams;
 
@@ -62,7 +62,7 @@ namespace MedicalModel
         private double CalcF()
         {
 
-           var minc = GetAvgStats(Environment.Stats.Stats[StatsType.Inicdence], Environment.Stats.Stats[StatsType.AtRisk]);
+            var minc = GetAvgStats(Environment.Stats.Stats[StatsType.Diagnosis], Environment.Stats.Stats[StatsType.AgeDistributions]);
             var mmort = GetAvgStats(Environment.Stats.Stats[StatsType.CancerMortality], Environment.Stats.Stats[StatsType.AtRisk]);
 
             var F1 = Enumerable.Repeat((double)0, _maxAge-_minAge).ToList();
@@ -120,7 +120,7 @@ namespace MedicalModel
 
             if (b ==0)
             {
-                return 3;
+                return 0;
             }
 
 
