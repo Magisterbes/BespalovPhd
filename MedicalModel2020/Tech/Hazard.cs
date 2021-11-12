@@ -236,12 +236,13 @@ namespace MedicalModel
             ValueByAge = new Dictionary<int, double>();
             var j = 0;
             ValueByAge[j] = Math.Exp(Constants[0]);
+            Years.Add(200);
             j = 1;
 
-            for (int i = 1; i < Years.Count; i++)
+            for (int i = 1; i < Years.Count-1; i++)
             {
 
-                while (Years[i] > j)
+                while (Years[i+1] > j)
                 {
                     var newval = ValueByAge[j-1] * Math.Exp(Constants[i]);
                     this.ValueByAge.Add(j, newval);
