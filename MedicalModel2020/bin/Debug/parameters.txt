@@ -7,7 +7,7 @@ UnrealLifeLength:110
 TrainDataFilename: train_set.csv
  
 #Natural History Parameters 
-IncidenceHazard: piecewise, -1@-13.3;0@0.1;30@0.12;50@0.07;60@0.018;70@-0.05
+IncidenceHazard: piecewise, -1@-13.3;0@0.01;30@0.02;50@0.03;60@-0.03;70@-0.045
 MalignancyHazard: exp,0.77
 
 #Growth Rate is percent per year

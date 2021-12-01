@@ -231,25 +231,27 @@ namespace MedicalModel
         }
 
 
+        private double CalcForYear(double year)
+        {
+            var result = Constants[0];
+
+            for (int i = 1; i < Constants.Length; i++)
+            {
+                result += Constants[i] *(year - Years[i]) * Tech.Heaviside(year - Years[i]);
+            }
+
+
+            return Math.Exp(result);
+        }
+
         private void MakeHazards()
         {
             ValueByAge = new Dictionary<int, double>();
-            var j = 0;
-            ValueByAge[j] = Math.Exp(Constants[0]);
-            Years.Add(200);
-            j = 1;
 
-            for (int i = 1; i < Years.Count-1; i++)
+            for (int i = 0; i < 120; i++)
             {
-
-                while (Years[i+1] > j)
-                {
-                    var newval = ValueByAge[j-1] * Math.Exp(Constants[i]);
-                    this.ValueByAge.Add(j, newval);
-
-                    j++;
-                }
-
+                    this.ValueByAge.Add(i, CalcForYear(i));
+                    //System.Console.WriteLine(Math.Log( this.ValueByAge[i]).ToString());
             }
         }
 

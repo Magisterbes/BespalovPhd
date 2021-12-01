@@ -52,6 +52,10 @@ namespace MedicalModel
             return input >= 0 ? 1 : 0;
         }
 
+        public static double Heaviside(double input, double delay)
+        {
+            return input >= delay ? 1 : 0;
+        }
 
 
         public static int CheckByIntDistribution(int[] distribution, int max)
