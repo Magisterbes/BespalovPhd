@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace MedicalModel
 {
-    class ObjectiveFunction: LibOptimization.Optimization.absObjectiveFunction
+    class ObjectiveFunctionLH: LibOptimization.Optimization.absObjectiveFunction
     {
         int _size = 2;
         int _simYears = 30;
@@ -19,7 +19,7 @@ namespace MedicalModel
         int _delay = 5;
         Parameters savedParams;
 
-        public ObjectiveFunction(int size)
+        public ObjectiveFunctionLH(int size)
         {
             _size = size;
             savedParams = Environment.Params.Clone();
@@ -77,56 +77,48 @@ namespace MedicalModel
                 var pop = 0.0;
                 for (int j = 0; j < 5; j++)
                 {
-                    inc += Convert.ToDouble(Environment.Params.TrainData["incidence"][i+j]);
+                    inc += Convert.ToDouble(Environment.Params.TrainData["incidence"][i + j]);
                     mort += Convert.ToDouble(Environment.Params.TrainData["mortality cancer"][i + j]);
                     pop += Convert.ToDouble(Environment.Params.TrainData["population"][i + j]);
                     minc_val.Add(minc[i + j]);
                     mmort_val.Add(mmort[i + j]);
                 }
 
-                F1[i- _minAge] =  LogDistance(inc, minc_val.Average(), pop);
-                F2[i - _minAge] = LogDistance(mort, mmort_val.Average(), pop);
+                var minci = minc_val.Average();
+                var mmorti = mmort_val.Average();
+
+
+                if (minci > 0)
+                {
+                    F1[i - _minAge] =  -(inc / pop) * Math.Log(minci) - (1- (inc / pop)) * Math.Log(1- minci);
+                }
+                else
+                {
+                    F1[i - _minAge] = -(inc / pop) * Math.Log(1 / pop) - (1 - (inc / pop)) * Math.Log(1 - minci);
+                }
+
+                if (mmorti > 0)
+                {
+                    F2[i - _minAge] = -(mort / pop) * Math.Log(mmorti) - (1 - (mort / pop)) * Math.Log(1 - mmorti);
+                }
+                else 
+                {
+                    F2[i - _minAge] = -(mort / pop) * Math.Log(1 / pop)  - (1 - (mort / pop)) * Math.Log(1 - mmorti);
+                }
             }
 
             var F = F1;
             F.AddRange(F2);
 
             SplashUtility<Waitbar>.DrawPlot(F.ToArray());
-            SplashUtility<Waitbar>.SetStatusText("Error function value: " + Math.Round(F.Sum(),4).ToString());
+            SplashUtility<Waitbar>.SetStatusText("Error function value: " + Math.Round(100*F.Sum(),4).ToString());
 
 
-            return F.Sum();
-        }
-
-        private List<double> AggErrors(List<double> F)
-        {
-             return F
-                    .Select((s, i) => new { Value = s, Index = i })
-                    .GroupBy(x => (int)(x.Index / 5))
-                    .Select(grp => grp.Select(x => x.Value).Average())
-                    .ToList();
+            return 100*F.Sum();
         }
 
 
-        private double LogDistance(double a, double b, double c)
-        {
-            if (a == 0 || c==0)
-            {
-                if (b == 0)
-                    return 0;
-                else
-                    return Math.Pow(Math.Log(b), 2);
-            }
-
-            if (b ==0)
-            {
-                return 0;
-            }
-
-
-            return Math.Pow(Math.Log(a/c) - Math.Log(b), 2);
-        }
-
+  
         private double[] GetAvgStats(Dictionary<int,int[]> vals, Dictionary<int, int[]> atrisk)
         {
             var res = new List<List<double>>();

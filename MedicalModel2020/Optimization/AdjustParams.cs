@@ -22,13 +22,13 @@ namespace MedicalModel
         {
             double[] initialPosition = GatherParameters();
 
-            var func = new ObjectiveFunction(initialPosition.Length);
+            var func = new ObjectiveFunctionLH(initialPosition.Length);
             var opt = new clsOptSimulatedAnnealing(func);
 
             opt.InitialPosition = initialPosition;
 
             opt.Temperature = 10;
-            opt.StopTemperature = 0.01;
+            opt.StopTemperature = 0.0001;
             opt.CoolingRatio = 0.95;
             opt.IsUseCriterion = false;
             opt.Iteration = 100;

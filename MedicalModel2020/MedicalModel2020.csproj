@@ -166,6 +166,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Optimization\AdjustObjectiveFunctionLH.cs" />
     <Compile Include="Optimization\AdjustObjectiveFunction.cs" />
     <Compile Include="Simulation\Cancer.cs" />
     <Compile Include="Simulation\Criteria.cs" />
