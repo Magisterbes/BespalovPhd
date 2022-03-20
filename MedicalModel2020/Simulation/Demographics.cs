@@ -24,10 +24,10 @@ namespace MedicalModel
             
             GetBirthday(prms.InitAgeDist, p, isNew);
             GetNaturalDeath(prms.Aging, p);
-            GetIncidence(prms.IncidenceHazard, p);
+            GetDiagnose(prms.DiagnoseHazard, p);
 
 
-            if (p.IncidenceAge <= p.Age)
+            if (p.DiagnosisAge != Environment.Params.UnrealLifeLength)
             {
                 p.CurrentCancer = new Cancer(p);
                 // Environment.Stats.UpdateStats(StatsType.Inicdence, Environment.CurrentDate - (p.Age- p.IncidenceAge), p.IncidenceAge, p.Sex);
@@ -68,17 +68,17 @@ namespace MedicalModel
 
         }
 
-        private static void GetIncidence(Hazard hz, Person p)
+        private static void GetDiagnose(Hazard hz, Person p)
         {
             if (p.Age>98)
             {
-                p.IncidenceAge = -1;
+                p.DiagnosisAge = -1;
                 return;
             }
 
             //while (p.Age >= p.IncidenceAge)
             //{
-                p.IncidenceAge = (int)hz.T(0,0);
+                p.DiagnosisAge = (int)hz.T(0,0);
            // }
 
         }

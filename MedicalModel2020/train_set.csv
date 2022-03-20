@@ -1,4 +1,4 @@
-Age;population;incidence;mortality cancer;mortality all
+Age;population;cases;deaths cancer;deaths all
 0;847281;0;0;5677
 1;822373;0;0;633
 2;798780;0;0;343

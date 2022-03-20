@@ -80,12 +80,6 @@ namespace MedicalModel
                 {
 
 
-                    if (p.Age == p.IncidenceAge)
-                    {
-                        p.CurrentCancer = new Cancer(p);
-                        Stats.UpdateStats(StatsType.Inicdence, CurrentDate, p.Age);
-                    }
-
                     if (CurrentDate >= Environment.Params.ScreeningDate
                         && ((CurrentDate - Environment.Params.ScreeningDate) % Environment.Params.Freqency) == 0
                         && CheckScreening(p))
@@ -98,7 +92,7 @@ namespace MedicalModel
                 {
                     Stats.UpdateStats(StatsType.AgeDistributions, CurrentDate, p.Age);
 
-                    if (p.IncidenceAge == -1 || p.IncidenceAge > p.Age)
+                    if (p.DiagnosisAge == Environment.Params.UnrealLifeLength || p.DiagnosisAge > p.Age)
                     {
                         Stats.UpdateStats(StatsType.AtRisk, CurrentDate, p.Age);
                     }
@@ -131,6 +125,7 @@ namespace MedicalModel
             if (!(p.CurrentCancer != null && p.CurrentCancer.ScreeningAge != -1 )&&
                 p.Age >= Environment.Params.StartAge &&
                 p.Age <= Environment.Params.FinishAge &&
+                p.Age < p.DiagnosisAge &&
                 Tech.NextDouble(true)< Environment.Params.ParticipationRate)
                 return true;
             return false;

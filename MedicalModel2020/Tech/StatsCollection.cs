@@ -43,8 +43,8 @@ namespace MedicalModel
 
             AggInits = new Dictionary<AggStatsType, int>
             {
-                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageCriteria.Stages},
-                {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageCriteria.Stages},
+                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageDistirbution.Length},
+                {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageDistirbution.Length},
                 {AggStatsType.PeopleSaved, Environment.Params.UnrealLifeLength+1},
                 {AggStatsType.YearsSaved, Environment.Params.UnrealLifeLength+1},
                 {AggStatsType.FalsePositives, Environment.Params.YearsToSimulate+1},
@@ -109,7 +109,7 @@ namespace MedicalModel
 
             agg[AggStatsType.MortalityRates] = GetAvgStats(st[StatsType.CancerMortality], st[StatsType.AtRisk]);
             agg[AggStatsType.ScreenedMortalityRates] = GetAvgStats(st[StatsType.CancerScreeningMortality], st[StatsType.AtRisk]);
-            agg[AggStatsType.IncidenceRates] = GetAvgStats(st[StatsType.Inicdence], st[StatsType.AtRisk]);
+            agg[AggStatsType.IncidenceRates] = GetAvgStats(st[StatsType.Inicdence], st[StatsType.AgeDistributions]);
             agg[AggStatsType.DiagnosisRates] = GetAvgStats(st[StatsType.Diagnosis], st[StatsType.AgeDistributions]);
 
 
@@ -120,12 +120,12 @@ namespace MedicalModel
 
         private void GatherOne(Person p, ref Dictionary<AggStatsType, double[]> agg)
         {
-            if (p.IncidenceAge != -1
-                    && p.IncidenceAge < p.NaturalDeathAge
-                    && p.IncidenceAge + p.DateBirth <= Environment.CurrentDate
+            if (p.DiagnosisAge != -1
+                    && p.DiagnosisAge < p.NaturalDeathAge
+                    && p.DiagnosisAge + p.DateBirth <= Environment.CurrentDate
                     && p.CurrentCancer.DiagnoseStage != -1)
             {
-                agg[AggStatsType.DiagnoseStagesDistribution][p.CurrentCancer.DiagnoseStage]++;
+                agg[AggStatsType.DiagnoseStagesDistribution][p.CurrentCancer.DiagnoseStage-1]++;
             }
 
 
@@ -140,7 +140,7 @@ namespace MedicalModel
 
             if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
             {
-                agg[AggStatsType.PeopleSaved][p.IncidenceAge]++;
+                agg[AggStatsType.PeopleSaved][p.CurrentCancer.IncidenceAge]++;
 
                 for (int i = p.CancerDeathAge; i < p.NaturalDeathAge; i++)
                 {
@@ -156,12 +156,18 @@ namespace MedicalModel
                 && p.CancerDeathAge <= p.Age
                 )
             {
-                agg[AggStatsType.PeopleSaved][p.IncidenceAge]++;
-                agg[AggStatsType.YearsSaved][p.IncidenceAge] += p.Age - p.CancerDeathAge;
+                agg[AggStatsType.PeopleSaved][p.CurrentCancer.IncidenceAge]++;
+                agg[AggStatsType.YearsSaved][p.CurrentCancer.IncidenceAge] += p.Age - p.CancerDeathAge;
             }
 
         }
 
+        /// <summary>
+        /// Not used
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <param name="Pop"></param>
+        /// <returns></returns>
         public double[] MakeRates(Dictionary<int, int[]> Data, Dictionary<int, int[]> Pop)
         {
             var data = FullSum(Data);
@@ -187,44 +193,44 @@ namespace MedicalModel
 
         private double[] GetAvgStats(Dictionary<int, int[]> vals, Dictionary<int, int[]> atrisk)
         {
-            var res = new List<List<double>>();
-            for (int i = 0; i < Environment.Params.UnrealLifeLength + 1; i++)
-            {
-                res.Add(new List<double>());
-            }
+            var sz = 100;
+            var cases = new double[sz];
+            var pop = new double[sz];
 
-            for (int i = 0; i < vals.Count; i++)
+            for (int i = 1; i < vals.Count; i++)
             {
-                for (int j = 0; j < 100; j++)
+                for (int j = 0; j < sz; j++)
                 {
+                    cases[j] += vals[i][j];
+                    pop[j] += atrisk[i][j];
 
-                    if (atrisk[i][j] > 0)
-                    {
-                        var val = Convert.ToDouble(vals[i][j]) / Convert.ToDouble(atrisk[i][j]);
-
-                        res[j].Add(val);
-                    }
-                    else
-                    {
-                        res[j].Add(0);
-                    }
                 }
             }
 
 
+            var final = new List<double>();
 
-            var final = res.Select(a => {
-
-                if (a.Count > 0)
-                    return a.Average();
+            for (int i = 0; i < sz; i++)
+            {
+                if (pop[i] != 0)
+                {
+                    final.Add(cases[i]/pop[i]);
+                }
                 else
-                    return 0;
+                {
+                    final.Add(0);
+                }
+            }
 
-            }).ToArray();
-
-            return Smooth(final);
+            return final.ToArray();
         }
 
+        /// <summary>
+        /// Not used smoothing function
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <param name="Pop"></param>
+        /// <returns></returns>
         private double[] Smooth(double[] input)
         {
             double[] final = (double[])input.Clone();

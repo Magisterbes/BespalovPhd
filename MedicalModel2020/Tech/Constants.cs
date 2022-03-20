@@ -23,17 +23,20 @@ namespace MedicalModel
 
         private double[] trainIncidence;
         private double[] trainMortality;
+        //private Hazard diagnosisSizeHazard;
+        // private Hazard malignancyHazard;
 
-        private Hazard incidenceHazard;
-        private Hazard malignancyHazard;
         private Hazard diagnoseHazard;
         private Hazard сancerDeathHazard;
-        private RandomGenerator growthRateDistribution;
+        //private RandomGenerator growthRateDistribution;
 
-        private Criteria stageCriteria;
+        private double[] stageCriteria;
         private double reoccurrenceProbability;
         private double treatmentMortalityAdjustment;
-        private double proportionOfAggressive;
+        private double[] proportionOfAggressive;
+        private double[] stageDistirbution;
+        private double[] growthRateLimits;
+        private double aggressivenessRateThreshold;
 
 
         private double[] treatmentEfficiency = new double[] { 0.75, 0.85, 0.95 };
@@ -78,18 +81,24 @@ namespace MedicalModel
         public Distribution Aging { get => aging; set => aging = value; }
         public Distribution InitAgeDist { get => initAgeDist; set => initAgeDist = value; }
 
-    
-        public Hazard MalignancyHazard { get => malignancyHazard; set => malignancyHazard = value; }
-        public Hazard IncidenceHazard { get => incidenceHazard; set => incidenceHazard = value; }
-        public RandomGenerator GrowthRateDistribution { get => growthRateDistribution; set => growthRateDistribution = value; }
+
+        // public Hazard MalignancyHazard { get => malignancyHazard; set => malignancyHazard = value; }
+        // public Hazard DiagnosisSizeHazard { get => diagnosisSizeHazard; set => diagnosisSizeHazard = value; }
+        // public RandomGenerator GrowthRateDistribution { get => growthRateDistribution; set => growthRateDistribution = value; }
         public Hazard DiagnoseHazard { get => diagnoseHazard; set => diagnoseHazard = value; }
         public Hazard CancerDeathHazard { get => сancerDeathHazard; set => сancerDeathHazard = value; }
 
 
-        public Criteria StageCriteria { get => stageCriteria; set => stageCriteria = value; }
+        public double[] StageCriteria { get => stageCriteria; set => stageCriteria = value; }
         public double ReoccurrenceProbability { get => reoccurrenceProbability; set => reoccurrenceProbability = value; }
         public double TreatmentMortalityAdjustment { get => treatmentMortalityAdjustment; set => treatmentMortalityAdjustment = value; }
-        public double ProportionOfAggressive { get => proportionOfAggressive; set => proportionOfAggressive = value; }
+        public double[] ProportionOfAggressive { get => proportionOfAggressive; set => proportionOfAggressive = value; }
+
+        public double[] StageDistirbution { get => stageDistirbution; set => stageDistirbution = value; }
+
+        public double[] GrowthRateLimits { get => growthRateLimits; set => growthRateLimits = value; }
+
+        public double AggressivenessRateThreshold { get => aggressivenessRateThreshold; set => aggressivenessRateThreshold = value; }
 
 
 
@@ -223,13 +232,13 @@ namespace MedicalModel
             initAgeDist  =  new Distribution(rate, DistributionInputType.PDF);
 
             
-            rate = DFCtoArray(TrainData.Columns["mortality all"] / fsum);
+            rate = DFCtoArray(TrainData.Columns["deaths all"] / fsum);
             Aging = new Distribution(rate, DistributionInputType.PDF);
 
 
 
-            TrainIncidence = DFCtoArray(100000*TrainData.Columns["incidence"] / TrainData.Columns["population"]);
-            TrainMortality = DFCtoArray(100000 * TrainData.Columns["mortality cancer"] / TrainData.Columns["population"]);
+            TrainIncidence = DFCtoArray(TrainData.Columns["cases"] / TrainData.Columns["population"]);
+            TrainMortality = DFCtoArray(TrainData.Columns["deaths cancer"] / TrainData.Columns["population"]);
 
         }
 

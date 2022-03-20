@@ -61,50 +61,70 @@ namespace MedicalModel
 
         void DrawIncidence(Dictionary<AggStatsType,double[]> agg, bool clear, string Title)
         {
-            var data = agg[AggStatsType.IncidenceRates].Select(a=>a*100000).ToArray() ;
-            var diagData = agg[AggStatsType.DiagnosisRates].Select(a => a * 100000).ToArray();
+            var data = agg[AggStatsType.IncidenceRates].Select(a=> sfLog(a)).ToArray() ;
+            var diagData = agg[AggStatsType.DiagnosisRates].Select(a => sfLog(a)).ToArray();
+            var trinc = Environment.Params.TrainIncidence.Select(a => sfLog(a)).ToArray();
             var x = Enumerable.Range(0, 95).Select(a => (double)a).ToArray();
 
             if (clear)
                 IncChart.Series.Clear();
 
-            var title = "Incidence Rates " + Title;
+            var title = "Simulated Incidence Rates " + Title;
             ChartIt(title, SeriesChartType.Line, IncChart, data,x);
 
-            ChartIt("Train diagnosis rate", SeriesChartType.Line, IncChart, Environment.Params.TrainIncidence, x);
-            ChartIt("Simulation diagnosis rate", SeriesChartType.Line, IncChart, diagData, x);
+            ChartIt("Train Diagnosis Rates", SeriesChartType.Line, IncChart, trinc, x);
+            ChartIt("Simulated Diagnosis Rates", SeriesChartType.Line, IncChart, diagData, x);
 
 
 
             IncChart.ChartAreas[0].AxisX.Title = "Age";
-            IncChart.ChartAreas[0].AxisY.Title = "Rates*100000";
-            IncChart.ChartAreas[0].AxisY.IsLogarithmic = true;
+            IncChart.ChartAreas[0].AxisY.Title = "log10(Rates)";
 
+            data = data.Where(a => a != 0).ToArray();
+
+            IncChart.ChartAreas[0].AxisY.Maximum = data.Max() + 0.1;
+            IncChart.ChartAreas[0].AxisY.Minimum = data.Min() - 0.1;
+  
         }
 
 
+        private double sfLog(double val)
+        {
+            if (val <= 0)
+                return 0;
+
+            return Math.Log10(val);
+        }
+
         void DrawMortality(Dictionary<AggStatsType, double[]> agg, bool clear, string Title)
         {
-            var data = agg[AggStatsType.MortalityRates].Select(a => a * 100000).ToArray();
-            var screen = agg[AggStatsType.ScreenedMortalityRates].Select(a => a * 100000).ToArray();
+            var data = agg[AggStatsType.MortalityRates].Select(a => sfLog(a)).ToArray();
+            var screen = agg[AggStatsType.ScreenedMortalityRates].Select(a => sfLog(a) ).ToArray();
+            var trdata = Environment.Params.TrainMortality.Select(a => sfLog(a)).ToArray();
             var x = Enumerable.Range(0, 95).Select(a => (double)a).ToArray();
-            
-            if(clear) 
+
+
+
+            if (clear) 
                 MortChart.Series.Clear();
 
-            var title = "Mortality Rates " + Title;
+            var title = "Simulated Mortality Rates " + Title;
             ChartIt(title, SeriesChartType.Line, MortChart, data,x);
 
-            //title = "Mortality Rates (Screening) "+ Title;
-            //ChartIt(title, SeriesChartType.Line, MortChart, screen,x);
+            title = "Screening Affected Mortality Rates (Screening) "+ Title;
+            ChartIt(title, SeriesChartType.Line, MortChart, screen,x);
 
             
-             ChartIt("Traiт mortality", SeriesChartType.Line, MortChart, Environment.Params.TrainMortality, x);
+             ChartIt("Train Mortality", SeriesChartType.Line, MortChart, trdata, x);
             
 
             MortChart.ChartAreas[0].AxisX.Title = "Age";
-            MortChart.ChartAreas[0].AxisY.Title = "Rates*100000";
-            MortChart.ChartAreas[0].AxisY.IsLogarithmic = true;
+            MortChart.ChartAreas[0].AxisY.Title = "log10(Rates)";
+
+            data = data.Where(a => a != 0).ToArray();
+
+            MortChart.ChartAreas[0].AxisY.Maximum = data.Max() + 0.1;
+            MortChart.ChartAreas[0].AxisY.Minimum = data.Min() - 0.1;
         }
 
         void DrawDiagnose()
@@ -120,8 +140,8 @@ namespace MedicalModel
             DiagChart.Series.Clear();
 
 
-            ChartIt("Overall diagnose stages distribution", SeriesChartType.Column, DiagChart, fdata,stages);
-            ChartIt("Overall screening stages distribution", SeriesChartType.Column, DiagChart, fscreen, stages);
+            ChartIt("Clinical phase stages distribution", SeriesChartType.Column, DiagChart, fdata,stages);
+            ChartIt("Screening affected stages distribution", SeriesChartType.Column, DiagChart, fscreen, stages);
 
 
             DiagChart.ChartAreas[0].AxisX.Title = "Cancer stage";
@@ -132,18 +152,18 @@ namespace MedicalModel
 
         public void ChartTest(string Title, double[] data, double[] x)
         {
-            testChart.Series.Add(Title);
-            testChart.Series[Title].ChartType = SeriesChartType.Line;
+            //testChart.Series.Add(Title);
+            //testChart.Series[Title].ChartType = SeriesChartType.Line;
 
-            for (int j = 0; j < x.Length; j++)
-            {
-                if (data[j] == 0)
-                    continue;
-                testChart.Series[Title].Points.AddXY(x[j], data[j]);
-            }
-            testChart.Series[Title].BorderWidth = 2;
-            testChart.ChartAreas[0].AxisX.Minimum = 0;
-            testChart.ChartAreas[0].AxisY.IsLogarithmic = true;
+            //for (int j = 0; j < x.Length; j++)
+            //{
+            //    if (data[j] == 0)
+            //        continue;
+            //    testChart.Series[Title].Points.AddXY(x[j], data[j]);
+            //}
+            //testChart.Series[Title].BorderWidth = 2;
+            //testChart.ChartAreas[0].AxisX.Minimum = 0;
+            //testChart.ChartAreas[0].AxisY.IsLogarithmic = true;
         }
 
         public void ChartIt(string Title, SeriesChartType ctype, Chart ThisChart, double[] data, double[] x)
@@ -156,8 +176,12 @@ namespace MedicalModel
                 if (data[j] != 0)
                     ThisChart.Series[Title].Points.AddXY(x[j], data[j]);
             }
+
+            
+
             ThisChart.Series[Title].BorderWidth = 2;
             ThisChart.ChartAreas[0].AxisX.Minimum = 0;
+            ThisChart.ChartAreas[0].AxisY.LabelStyle.Format = "{##.####}";
         }
 
         private void ChartIt(string Title, SeriesChartType ctype, Chart ThisChart, double[] data)
@@ -244,7 +268,7 @@ namespace MedicalModel
             AddLog("Fit started.");
             LogAdjustParams();
             SplashUtility<Waitbar>.Show();
-            AdjustParams.Adjust(this);
+            AdjustParamsDiag.Adjust(this);
             SplashUtility<Waitbar>.Close();
             AddLog("Fit finnished.");
             LogAdjustParams();
@@ -263,10 +287,11 @@ namespace MedicalModel
         {
             List<string> res = new List<string>();
 
-            res.Add("GrowthRateDistribution:" + string.Join(", ", Environment.Params.GrowthRateDistribution.Coefs));
-            res.Add("IncidenceHazard:" + string.Join(", ", Environment.Params.IncidenceHazard.Constants));
+            res.Add("GrowthRateLimits:" + string.Join(", ", Environment.Params.GrowthRateLimits));
+            res.Add("ProportionOfAggressive:" + string.Join(", ", Environment.Params.ProportionOfAggressive));
+            res.Add("AggressivenessRateThreshold:" + string.Join(", ", Environment.Params.AggressivenessRateThreshold));
+            res.Add("StageDistirbution:" + string.Join(", ", Environment.Params.StageDistirbution));
             res.Add("DiagnoseHazard:" + string.Join(", ", Environment.Params.DiagnoseHazard.Constants));
-            res.Add("MalignancyHazard:" + string.Join(", ", Environment.Params.MalignancyHazard.Constants));
             res.Add("CancerDeathHazard:" + string.Join(", ", Environment.Params.CancerDeathHazard.Constants));
 
 
@@ -320,6 +345,16 @@ namespace MedicalModel
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MortChart_Click(object sender, EventArgs e)
         {
 
         }

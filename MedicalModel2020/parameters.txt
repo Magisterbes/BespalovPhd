@@ -7,22 +7,21 @@ UnrealLifeLength:110
 TrainDataFilename: train_set.csv
  
 #Natural History Parameters 
-#IncidenceHazard: piecewise, -1@-13.3;0@0.08;30@0.08;40@-0.09;60@-0.02;70@-0.06
-IncidenceHazard: piecewise, -1@-13.3;0@0.01;30@0.01;40@-0.01;60@-0.02;70@-0.06
-MalignancyHazard: exp,0.77
+#DiagnosisSizeHazard: exp,3.56
+#MalignancyHazard: exp,0.77
 
-#Growth Rate is percent per year
-GrowthRateDistribution: uniform,  1.63, 2.68
 
 #It's the hazard dependent on tumor size, not time.
-DiagnoseHazard: exp,3.56
-CancerDeathHazard: exp,1.2
+DiagnoseHazard: piecewise, -1@-14.7;0@0.095;30@0.061;50@-0.08;60@-0.007;70@-0.1 
+CancerDeathHazard: exp,0.5
 
-
-StageCriteria: 5n,30m,40m
+StageCriteria: 5,30,80
+StageDistirbution: 0.2,0.3,0.4,0.1
 ReoccurrenceProbability: 0.2
 TreatmentMortalityAdjustment: 1
-ProportionOfAggressive: 0.5
+ProportionOfAggressive: 0.1,0.2,0.5,0.5
+GrowthRateLimits:  1.6, 2.6
+AggressivenessRateThreshold: 0.2
 
 #Treatment Parameters
 

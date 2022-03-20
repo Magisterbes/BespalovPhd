@@ -240,8 +240,12 @@ namespace MedicalModel
                 result += Constants[i] *(year - Years[i]) * Tech.Heaviside(year - Years[i]);
             }
 
+            var val = Math.Exp(result); 
 
-            return Math.Exp(result);
+            if (val > 1)
+                val = 1;
+
+            return val;
         }
 
         private void MakeHazards()
@@ -251,7 +255,7 @@ namespace MedicalModel
             for (int i = 0; i < 120; i++)
             {
                     this.ValueByAge.Add(i, CalcForYear(i));
-                    //System.Console.WriteLine(Math.Log( this.ValueByAge[i]).ToString());
+                    System.Console.WriteLine(Math.Log( this.ValueByAge[i]).ToString());
             }
         }
 

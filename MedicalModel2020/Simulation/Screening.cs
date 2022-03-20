@@ -14,7 +14,7 @@ namespace MedicalModel
 
         public static void ScreenPerson(Person p)
         {
-            if(p.IncidenceAge  == -1 || p.IncidenceAge > p.Age)
+            if(p.DiagnosisAge == Environment.Params.UnrealLifeLength || p.CurrentCancer.IncidenceAge > p.Age)
             {
                 if(Tech.CheckByProb(FP) == 1)
                 {
@@ -23,7 +23,7 @@ namespace MedicalModel
             }
             else
             {
-                if (p.IncidenceAge <= p.Age && p.CurrentCancer.DiagnoseAge> p.Age && Tech.CheckByProb(TP) == 1)
+                if (p.CurrentCancer.IncidenceAge < p.Age && Tech.CheckByProb(TP) == 1)
                 {
                     p.CurrentCancer.FromScreening(p);
                 }

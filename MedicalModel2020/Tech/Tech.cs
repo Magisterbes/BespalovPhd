@@ -11,6 +11,7 @@ namespace MedicalModel
     static class Tech
     {
         public static Random Rnd = new Random(DateTime.Now.Millisecond);
+        public static Multinomial StageMlt;
 
         public static void Setup()
         {
@@ -19,9 +20,15 @@ namespace MedicalModel
             Screening.TP = Environment.Params.TestTP[testIdx];
             Screening.FP = Environment.Params.TestFP[testIdx];
 
+            StageMlt = new Multinomial(Environment.Params.StageDistirbution,1);
 
         }
 
+
+        public static double GetUni(double low, double up)
+        {
+            return low + (up - low) * Rnd.NextDouble();
+        }
 
         public static double[] CutByZero(double[] input)
         {

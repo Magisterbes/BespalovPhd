@@ -28,7 +28,7 @@ namespace MedicalModel
         public bool IsAlive { set; get; }
         public int NaturalDeathAge { set; get; }
         public int CancerDeathAge { set; get; }
-        public int IncidenceAge { set; get; }
+        public int DiagnosisAge { set; get; }
         public Cancer CurrentCancer { set; get; }
 
         public object Clone()
