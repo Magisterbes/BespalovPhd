@@ -268,7 +268,10 @@ namespace MedicalModel
             AddLog("Fit started.");
             LogAdjustParams();
             SplashUtility<Waitbar>.Show();
+            SplashUtility<Waitbar>.SetStatusText("Diagnosis data fitting");
             AdjustParamsDiag.Adjust(this);
+            SplashUtility<Waitbar>.SetStatusText("Mortality data fitting");
+            AdjustParamsMort.Adjust(this);
             SplashUtility<Waitbar>.Close();
             AddLog("Fit finnished.");
             LogAdjustParams();

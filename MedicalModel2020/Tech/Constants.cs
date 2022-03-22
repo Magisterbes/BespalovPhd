@@ -35,8 +35,8 @@ namespace MedicalModel
         private double treatmentMortalityAdjustment;
         private double[] proportionOfAggressive;
         private double[] stageDistirbution;
-        private double[] growthRateLimits;
-        private double aggressivenessRateThreshold;
+        internal double[] growthRateLimits;
+        internal double aggressivenessRateThreshold;
 
 
         private double[] treatmentEfficiency = new double[] { 0.75, 0.85, 0.95 };

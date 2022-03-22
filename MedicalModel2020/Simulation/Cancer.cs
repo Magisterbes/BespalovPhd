@@ -43,7 +43,7 @@ namespace MedicalModel
 
 
 
-        void CalculateHistory(Person p)
+        internal void CalculateHistory(Person p)
         {
             IsCured = false;
             IsScreeningCured = false;
@@ -90,7 +90,7 @@ namespace MedicalModel
 
         }
 
-
+ 
         double GetGrowthRate(double stage)
         {
             var isAgg = (Tech.CheckByProb(Environment.Params.ProportionOfAggressive[(int)stage-1])==1);

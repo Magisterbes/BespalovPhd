@@ -250,26 +250,38 @@ namespace MedicalModel
         private void CalcSurvivalParallel(Person p)
         {
 
+            if ((p.CurrentCancer == null) || (p.CancerDeathAge > p.NaturalDeathAge)||(p.DiagnosisAge> p.Age)||(p.DiagnosisAge ==-1))
+                return;
 
-            if (p.DeathCause == DeathStatus.NaturalSavedByScreening)
+            if ((p.Age < p.NaturalDeathAge) && (p.Age < p.CancerDeathAge)) 
             {
-                itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
-                itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.Survival);
+                itterSurv(p.CurrentCancer.DiagnosisAge, p.Age, AggStatsType.SurvivalScreening);
+                itterSurv(p.CurrentCancer.DiagnosisAge, p.Age, AggStatsType.Survival);
+                return;
+            }
+            
+            
+            if (p.CurrentCancer.IsScreeningCured&&!p.CurrentCancer.IsCured)
+            {
+                var minAge = (new int[] { p.NaturalDeathAge, p.Age }).Min();
+                itterSurv(p.CurrentCancer.DiagnosisAge, minAge, AggStatsType.SurvivalScreening);
+                itterSurv(p.CurrentCancer.DiagnosisAge, p.CancerDeathAge, AggStatsType.Survival);
+            }
+
+            if (!p.CurrentCancer.IsScreeningCured && !p.CurrentCancer.IsCured)
+            {
+                itterSurv(p.CurrentCancer.DiagnosisAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
+                itterSurv(p.CurrentCancer.DiagnosisAge, p.CancerDeathAge, AggStatsType.Survival);
             }
 
 
-            if (p.DeathCause == DeathStatus.Cancer)
+            if (p.CurrentCancer.IsCured)
             {
-                itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
-                itterSurv(p.CurrentCancer.IncidenceAge, p.CancerDeathAge, AggStatsType.Survival);
+                var minAge = (new int[] { p.NaturalDeathAge, p.Age }).Min();
+                itterSurv(p.CurrentCancer.DiagnosisAge, minAge, AggStatsType.SurvivalScreening);
+                itterSurv(p.CurrentCancer.DiagnosisAge, minAge, AggStatsType.Survival);
             }
 
-
-            if (p.DeathCause == DeathStatus.NaturalCured)
-            {
-                itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.SurvivalScreening);
-                itterSurv(p.CurrentCancer.IncidenceAge, p.NaturalDeathAge, AggStatsType.Survival);
-            }
 
         }
 

@@ -168,6 +168,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Optimization\AdjustParamsDiag.cs" />
+    <Compile Include="Optimization\AdjustParamsMort.cs" />
+    <Compile Include="Optimization\ObjectiveFunctionMortLH.cs" />
     <Compile Include="Optimization\ObjectiveFunctionDiagLH.cs" />
     <Compile Include="Simulation\Cancer.cs" />
     <Compile Include="Simulation\Criteria.cs" />
