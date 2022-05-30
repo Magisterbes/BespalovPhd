@@ -11,7 +11,7 @@ namespace MedicalModel
     static class Tech
     {
         public static Random Rnd = new Random(DateTime.Now.Millisecond);
-        public static Multinomial StageMlt;
+
 
         public static void Setup()
         {
@@ -20,7 +20,19 @@ namespace MedicalModel
             Screening.TP = Environment.Params.TestTP[testIdx];
             Screening.FP = Environment.Params.TestFP[testIdx];
 
-            StageMlt = new Multinomial(Environment.Params.StageDistirbution,1);
+
+        }
+
+        /// <summary>
+        /// First value in vals is 1. It's intercept.
+        /// </summary>
+        /// <param name="coefs"></param>
+        /// <param name="vals"></param>
+        /// <returns></returns>
+        public static double ComputeRegression(double[] coefs, double[] vals)
+        {
+
+            return coefs.Select((v, i) => v * vals[i]).Sum();
 
         }
 
@@ -54,6 +66,7 @@ namespace MedicalModel
         }
 
 
+
         public static double Heaviside(double input)
         {
             return input >= 0 ? 1 : 0;
@@ -61,7 +74,23 @@ namespace MedicalModel
 
         public static double Heaviside(double input, double delay)
         {
+
             return input >= delay ? 1 : 0;
+        }
+
+
+        public static double[] GetAgeGroup(object age)
+        {
+            var gr = new double[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            var rounded = Convert.ToInt32(Math.Floor(Math.Round(Convert.ToDouble(age) / 10)));
+            gr[rounded] = 1;
+            return gr;
+        }
+
+        public static int GetAgeGroupInt(object age)
+        {
+            var rounded = 10*Convert.ToInt32(Math.Floor(Math.Round(Convert.ToDouble(age) / 10)));
+            return rounded;
         }
 
 

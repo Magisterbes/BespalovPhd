@@ -17,7 +17,7 @@ namespace MedicalModel
         {
             double[] initialPosition = GatherParameters();
 
-            var alg = new NelderMeadSimplex(1, 2000);
+            var alg = new NelderMeadSimplex(0.0001, 2000);
             var initialVec = Vector.Build.DenseOfEnumerable(initialPosition);
 
             var objective = new ObjectiveFunctionDiagLH(initialPosition.Length);

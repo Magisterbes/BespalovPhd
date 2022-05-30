@@ -29,7 +29,10 @@ namespace MedicalModel
         IncidenceRates,
         Survival,
         SurvivalScreening,
-        DiagnosisRates
+        DiagnosisRates,
+        CancerMortalityAge,
+        CancerMortalityAgeScreen,
+        AfterDiagnosis
     }
 
     class StatsCollection
@@ -43,8 +46,8 @@ namespace MedicalModel
 
             AggInits = new Dictionary<AggStatsType, int>
             {
-                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageDistirbution.Length},
-                {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageDistirbution.Length},
+                {AggStatsType.DiagnoseStagesDistribution, Environment.Params.StageDistributionLength},
+                {AggStatsType.ScreeningStagesDistribution, Environment.Params.StageDistributionLength},
                 {AggStatsType.PeopleSaved, Environment.Params.UnrealLifeLength+1},
                 {AggStatsType.YearsSaved, Environment.Params.UnrealLifeLength+1},
                 {AggStatsType.FalsePositives, Environment.Params.YearsToSimulate+1},
@@ -53,6 +56,9 @@ namespace MedicalModel
                 {AggStatsType.IncidenceRates, Environment.Params.YearsToSimulate+1},
                 {AggStatsType.Survival, 100},
                 {AggStatsType.SurvivalScreening, 100},
+                {AggStatsType.CancerMortalityAge, 100},
+                {AggStatsType.CancerMortalityAgeScreen, 100},
+                {AggStatsType.AfterDiagnosis, 200},
                 {AggStatsType.DiagnosisRates, 100}
              };
 
@@ -113,9 +119,49 @@ namespace MedicalModel
             agg[AggStatsType.DiagnosisRates] = GetAvgStats(st[StatsType.Diagnosis], st[StatsType.AgeDistributions]);
 
 
-            agg[AggStatsType.SurvivalScreening] = agg[AggStatsType.SurvivalScreening].Select(a => 100 * a / agg[AggStatsType.SurvivalScreening][0]).ToArray();
-            agg[AggStatsType.Survival] = agg[AggStatsType.Survival].Select(a => 100 * a / agg[AggStatsType.Survival][0]).ToArray();
+            agg[AggStatsType.SurvivalScreening] = CauseSurvEst(agg[AggStatsType.SurvivalScreening], agg[AggStatsType.CancerMortalityAgeScreen]);
+            agg[AggStatsType.Survival] = CauseSurvEst(agg[AggStatsType.Survival], agg[AggStatsType.CancerMortalityAge]);
 
+        }
+
+
+        private double[] CauseSurvEst(double[] alive, double[] dead)
+        {
+
+            List<double> h = new List<double>();
+            List<double> S = new List<double>();
+
+            for (int i = 0; i < alive.Length - 1; i++)
+            {               
+                h.Add(dead[i] / alive[i]);
+
+                var H = h.Sum();
+
+                S.Add(Math.Exp(-H));
+            }
+
+
+            return S.ToArray();
+        }
+
+
+        private double[] SurvEst(double[] alive)
+        {
+
+            var diff = alive.Zip(alive.Skip(1), (a, b) => Math.Abs(b - a)).ToArray();
+
+            List<double> S = new List<double>();
+
+            for (int i = 0; i < alive.Length-1; i++)
+            {
+                if (i == 0) { S.Add(1); continue; }
+
+                S.Add(S[i - 1] * (1 - diff[i] / alive[i]));
+
+
+            }
+
+            return S.ToArray();                
         }
 
         private void GatherOne(Person p, ref Dictionary<AggStatsType, double[]> agg)
@@ -128,10 +174,26 @@ namespace MedicalModel
                 agg[AggStatsType.DiagnoseStagesDistribution][p.CurrentCancer.DiagnoseStage-1]++;
             }
 
+            if (p.CurrentCancer != null)
+            {
+                var diff = p.CurrentCancer.StagesAges[3] - p.CurrentCancer.DiagnosisAge;
+
+                if (diff > 199)
+                {
+                    diff = 199;
+                }
+
+                if (diff <= 0)
+                {
+                    diff = 0;
+                }
+
+                agg[AggStatsType.AfterDiagnosis][(int)diff]++;
+            }
 
             if (p.CurrentCancer != null && p.CurrentCancer.ScreeningStage != -1)
             {
-                agg[AggStatsType.ScreeningStagesDistribution][p.CurrentCancer.ScreeningStage]++;
+                agg[AggStatsType.ScreeningStagesDistribution][p.CurrentCancer.ScreeningStage-1]++;
 
             }
 
@@ -142,7 +204,7 @@ namespace MedicalModel
             {
                 agg[AggStatsType.PeopleSaved][p.CurrentCancer.IncidenceAge]++;
 
-                for (int i = p.CancerDeathAge; i < p.NaturalDeathAge; i++)
+                for (int i = (int)p.CurrentCancer.CancerDeathAgeScreen; i < p.NaturalDeathAge; i++)
                 {
                     agg[AggStatsType.YearsSaved][i] += 1;
                 }                
@@ -153,11 +215,13 @@ namespace MedicalModel
                 && !p.CurrentCancer.IsCured
                 && p.CurrentCancer.IsScreeningCured
                 && p.CurrentCancer.ScreeningAge <= p.Age
-                && p.CancerDeathAge <= p.Age
+                && p.CurrentCancer.CancerDeathAgeInit <= p.Age
                 )
             {
+
+
                 agg[AggStatsType.PeopleSaved][p.CurrentCancer.IncidenceAge]++;
-                agg[AggStatsType.YearsSaved][p.CurrentCancer.IncidenceAge] += p.Age - p.CancerDeathAge;
+                agg[AggStatsType.YearsSaved][p.CurrentCancer.IncidenceAge] += (int)p.CancerDeathAgeScreening- (int)p.CancerDeathAgeNoScreening;
             }
 
         }
@@ -250,39 +314,40 @@ namespace MedicalModel
         private void CalcSurvivalParallel(Person p)
         {
 
-            if ((p.CurrentCancer == null) || (p.CancerDeathAge > p.NaturalDeathAge)||(p.DiagnosisAge> p.Age)||(p.DiagnosisAge ==-1))
+            if ((p.CurrentCancer == null) ||(p.DiagnosisAge> p.Age)||(p.DiagnosisAge ==-1))
                 return;
 
-            if ((p.Age < p.NaturalDeathAge) && (p.Age < p.CancerDeathAge)) 
+            var screenAge = p.CurrentCancer.DiagnosisAge;
+
+            if (p.CurrentCancer.ScreeningFound)
             {
-                itterSurv(p.CurrentCancer.DiagnosisAge, p.Age, AggStatsType.SurvivalScreening);
-                itterSurv(p.CurrentCancer.DiagnosisAge, p.Age, AggStatsType.Survival);
-                return;
+                screenAge = p.CurrentCancer.ScreeningAge;
             }
+
+            var minAge = (new double[] { p.NaturalDeathAge, p.Age, 
+                            p.CancerDeathAgeNoScreening}).Min();
+
+            var minAgeSceen = (new double[] { p.NaturalDeathAge, p.Age,
+                            p.CancerDeathAgeScreening}).Min();
+
+
+            itterSurv(screenAge, (int)minAgeSceen, AggStatsType.SurvivalScreening);
+            itterSurv(p.CurrentCancer.DiagnosisAge, (int)minAge, AggStatsType.Survival);
+
+            if(p.CancerDeathAgeNoScreening != -1 && p.CancerDeathAgeNoScreening <= p.NaturalDeathAge)
+            {
+                AggStats[AggStatsType.CancerMortalityAge][p.CancerDeathAgeNoScreening- p.CurrentCancer.DiagnosisAge]++;
+            }
+
+            if (p.CancerDeathAgeScreening != -1 && p.CancerDeathAgeScreening <= p.NaturalDeathAge)
+            {
+
+                AggStats[AggStatsType.CancerMortalityAgeScreen][p.CancerDeathAgeScreening - screenAge]++;
+            }
+
+
+            return;
             
-            
-            if (p.CurrentCancer.IsScreeningCured&&!p.CurrentCancer.IsCured)
-            {
-                var minAge = (new int[] { p.NaturalDeathAge, p.Age }).Min();
-                itterSurv(p.CurrentCancer.DiagnosisAge, minAge, AggStatsType.SurvivalScreening);
-                itterSurv(p.CurrentCancer.DiagnosisAge, p.CancerDeathAge, AggStatsType.Survival);
-            }
-
-            if (!p.CurrentCancer.IsScreeningCured && !p.CurrentCancer.IsCured)
-            {
-                itterSurv(p.CurrentCancer.DiagnosisAge, p.CancerDeathAge, AggStatsType.SurvivalScreening);
-                itterSurv(p.CurrentCancer.DiagnosisAge, p.CancerDeathAge, AggStatsType.Survival);
-            }
-
-
-            if (p.CurrentCancer.IsCured)
-            {
-                var minAge = (new int[] { p.NaturalDeathAge, p.Age }).Min();
-                itterSurv(p.CurrentCancer.DiagnosisAge, minAge, AggStatsType.SurvivalScreening);
-                itterSurv(p.CurrentCancer.DiagnosisAge, minAge, AggStatsType.Survival);
-            }
-
-
         }
 
         private void itterSurv(int beg, int fin, AggStatsType astype)

@@ -16,6 +16,7 @@ namespace MedicalModel
         static public List<Person> Population { set; get; }
         static public Parameters Params { set; get; }
         static public StatsCollection Stats { set; get; }
+        static public List<string> LogInfo { set; get; }
         static public int MaxID {set;get;}
 
         static int _currentDate = 0;
@@ -39,6 +40,7 @@ namespace MedicalModel
         }
         static public void Init(string filename)
         {
+            LogInfo = new List<string>();
             Params = new Parameters(filename);
             Tech.Setup();
             Stats = new StatsCollection(Params.YearsToSimulate);
@@ -101,7 +103,7 @@ namespace MedicalModel
                         check++;
                     }
 
-                    if (p.Age == p.CancerDeathAge)
+                    if (p.Age == p.CancerDeathAgeScreening)
                     {
                         if (p.DeathCause == DeathStatus.Cancer)
                         {

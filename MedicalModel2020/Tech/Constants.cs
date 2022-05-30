@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Analysis;
+using MathNet.Numerics.Distributions;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearRegression;
 
 namespace MedicalModel
 {
@@ -15,6 +18,9 @@ namespace MedicalModel
         private int initPopulation = 500000;
         private int unrealLifeLength = 110;
         private string trainDataFilename = "train_set.csv";
+        private string trainStagingDataFilename = "staging_train_set.csv";
+
+        private int stageDistributionLength = 4;
 
         public DataFrame TrainData;
 
@@ -23,6 +29,9 @@ namespace MedicalModel
 
         private double[] trainIncidence;
         private double[] trainMortality;
+        private double[][] stagingRegression;
+        private RandomGenerator timeBeforeDiagnosis;
+        private double[] timeBeforeDiagnosisStageShift;
         //private Hazard diagnosisSizeHazard;
         // private Hazard malignancyHazard;
 
@@ -64,21 +73,32 @@ namespace MedicalModel
         private double[] stageTreatementPrice = { 1, 2, 3, 4 };
         private double complicationsPrice = 1;
         private double reoccurrenceCost = 1;
-
-
-
+        private double[][] stageByAgeRegression;
+        private Dictionary<int, Multinomial> stageByAgeGenerator;
+        private Dictionary<int, Multinomial> stageByAgeRegGenerator;
+        private double[] progressionRegression;
 
         public int YearsToSimulate { get => yearsToSimulate; set => yearsToSimulate = value; }
         public int InitPopulation { get => initPopulation; set => initPopulation = value; }
          public int UnrealLifeLength { get => unrealLifeLength; set => unrealLifeLength = value; }
         public string TrainDataFilename { get => trainDataFilename; set => trainDataFilename = value; }
+        public string TrainStagingDataFilename { get => trainStagingDataFilename; set => trainStagingDataFilename = value; }
 
         public double[] TrainIncidence { get => trainIncidence; set => trainIncidence = value; }
         public double[] TrainMortality{ get => trainMortality; set => trainMortality = value; }
-      
 
 
-        public Distribution Aging { get => aging; set => aging = value; }
+        
+        public double[][] StagingRegression { get => stagingRegression; set => stagingRegression = value; }
+
+        public double[][] StageByAgeRegression { get => stageByAgeRegression; set => stageByAgeRegression = value; }
+
+        public Dictionary<int, Multinomial> StageByAgeRegGenerator { get => stageByAgeRegGenerator; set => stageByAgeRegGenerator = value; }
+        public Dictionary<int,Multinomial> StageByAgeGenerator { get => stageByAgeGenerator; set => stageByAgeGenerator = value; }
+
+        public double[] ProgressionRegression { get => progressionRegression; set => progressionRegression = value; }
+
+    public Distribution Aging { get => aging; set => aging = value; }
         public Distribution InitAgeDist { get => initAgeDist; set => initAgeDist = value; }
 
 
@@ -87,7 +107,9 @@ namespace MedicalModel
         // public RandomGenerator GrowthRateDistribution { get => growthRateDistribution; set => growthRateDistribution = value; }
         public Hazard DiagnoseHazard { get => diagnoseHazard; set => diagnoseHazard = value; }
         public Hazard CancerDeathHazard { get => сancerDeathHazard; set => сancerDeathHazard = value; }
+        public RandomGenerator TimeBeforeDiagnosis { get => timeBeforeDiagnosis; set => timeBeforeDiagnosis = value; }
 
+        public double[] TimeBeforeDiagnosisStageShift { get => timeBeforeDiagnosisStageShift; set => timeBeforeDiagnosisStageShift = value; }
 
         public double[] StageCriteria { get => stageCriteria; set => stageCriteria = value; }
         public double ReoccurrenceProbability { get => reoccurrenceProbability; set => reoccurrenceProbability = value; }
@@ -122,13 +144,20 @@ namespace MedicalModel
         public double ComplicationsPrice { get => complicationsPrice; set => complicationsPrice = value; }
 
         public double ReoccurrenceCost { get => reoccurrenceCost; set => reoccurrenceCost = value; }
+        public int StageDistributionLength { get => stageDistributionLength; set => stageDistributionLength = value; }
+
+        public double[] TBDGenerationArray { get; set; }
+
 
         public Parameters()
         {
         }
 
+
         public Parameters(string filename)
         {
+
+            
 
             var lis = File.ReadAllText(filename).Split('\n').ToList();
             CultureInfo customCulture = (CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
@@ -220,7 +249,221 @@ namespace MedicalModel
 
             }
             InitFrames();
+            LoadStagingTrainData();
+            GetTBDGenerationArray();
         }
+
+        private void GetTBDGenerationArray()
+        {
+
+            var arr = timeBeforeDiagnosis.Sample(100000);
+            TBDGenerationArray = arr.OrderBy(a=>a).ToArray();
+
+        } 
+
+        private void LoadStagingTrainData()
+        {
+            Environment.LogInfo.Add("Filename: " + trainStagingDataFilename);
+            var trainArray = DataFrame.LoadCsv(trainStagingDataFilename, ';');
+
+
+
+            //stagingRegression = GetStagingRegression(trainArray);
+
+            Environment.LogInfo.Add("Stage by Age model training.");
+            stageByAgeRegression = GetStageByAgeRegression(trainArray);
+
+            GetStageByAgeRegGenerator(stageByAgeRegression, trainArray);
+            GetStageByAgeGenerator(trainArray);
+            
+
+            proportionOfAggressive =  GetAggressivenessDistribution(trainArray);
+
+
+            //GetProgressionRegression(trainArray);
+
+        }
+
+        //private void GetProgressionRegression(DataFrame trainArray)
+        //{
+
+        //    var len = trainArray["Age"].Length;
+        //    var X = new double[len][];
+        //    var Y = new double[len];
+
+        //    for (int i = 0; i < len; i++)
+        //    {
+        //        var tempX = new double[6] { 0, 0, 0, 0, 0, 0 };
+        //        var tempY = new double[1] { 0 };
+
+        //        tempX[0] = Convert.ToDouble(trainArray["Age"][i]);
+        //        tempX[1] = Convert.ToDouble(trainArray["Aggressiveness"][i]);
+        //        tempX[1 + Convert.ToInt32(trainArray["Stage"][i])] += 1;
+                
+        //        Y[i] = Convert.ToDouble(trainArray["TumorProgression"][i]);
+        //        X[i] = tempX;
+        //    }
+
+        //    progressionRegression = Fit.MultiDim(X,Y,  intercept: true);
+
+
+        //}
+
+
+        
+
+        private void GetStageByAgeGenerator(DataFrame trainArray)
+        {
+            stageByAgeGenerator = new Dictionary<int, Multinomial>();
+
+            var minGr = Tech.GetAgeGroupInt(trainArray["Age"].Min());
+            var maxGr = Tech.GetAgeGroupInt(trainArray["Age"].Max());
+
+            var agrs = Enumerable.Range(0, (int)trainArray.Rows.Count)
+                        .Select(x => Tech.GetAgeGroupInt(trainArray["Age"][x])).ToArray();
+
+            PrimitiveDataFrameColumn<int> ageGroupCol = new PrimitiveDataFrameColumn<int>("AgeGroup", agrs);
+            trainArray.Columns.Add(ageGroupCol);
+
+
+            for (int i = 0; i < 12; i++)
+            {
+                double agr = i * 10;
+
+                if (i * 10 <= minGr)
+                {
+                    agr = minGr;
+                }
+
+                if (i * 10 >= maxGr)
+                {
+                    agr = maxGr;
+                }
+
+
+                var farr = trainArray.Filter(trainArray.Columns["AgeGroup"].ElementwiseEquals(agr));
+
+                var distr = new double[] { 0, 0, 0, 0 };
+
+                foreach (var st in farr["Stage"])
+                {
+                    var int_st = Convert.ToInt32(st);
+
+                    distr[int_st-1]++;
+
+                }
+
+
+                distr = distr.Select(a=> a/distr.Sum()).ToArray();
+
+                Console.WriteLine(i.ToString() +"\t" +String.Join("\t ", distr));
+
+                stageByAgeGenerator[i * 10] = new Multinomial(distr, 1);
+
+            }
+
+        }
+
+        private void GetStageByAgeRegGenerator(double[][] reg, DataFrame trainArray)
+        {
+            stageByAgeRegGenerator = new Dictionary<int, Multinomial>();
+
+            var minGr = Tech.GetAgeGroupInt(trainArray["Age"].Min());
+            var maxGr = Tech.GetAgeGroupInt(trainArray["Age"].Max());
+
+            for (int i = 0; i < 12; i++)
+            {
+                double[] arr;
+                double[] agr = Tech.GetAgeGroup(i*10);
+
+                if (i*10 <= minGr)
+                {
+                    agr = Tech.GetAgeGroup(minGr);
+                }
+
+                if (i * 10 >= maxGr)
+                {
+                    agr = Tech.GetAgeGroup(maxGr);
+                }
+
+                arr = LogisticMultiRegression.ComputeOutput(agr, reg, false);
+
+                Console.WriteLine(i.ToString() + "\t" + String.Join("\t ", arr));
+
+                stageByAgeRegGenerator[i * 10] = new Multinomial(arr, 1);
+
+
+            }
+
+        }
+
+
+        //private double[][] GetStagingRegression(DataFrame trainArray)
+        //{
+        //    var len = trainArray["Age"].Length;
+        //    var trainStagingX = new double[len][];
+        //    var trainStagingY = new int[len][];
+
+        //    for (int i = 0; i < len; i++)
+        //    {
+        //        var tempX = new double[3] { 0, 0, 0 };
+        //        var tempY = new int[4] { 0, 0, 0, 0 };
+
+        //        tempX[0] = Convert.ToDouble(trainArray["Age"][i]);
+        //        tempX[1] = Convert.ToDouble(trainArray["TumorProgression"][i]);
+        //        tempX[2] = Convert.ToDouble(trainArray["Aggressiveness"][i]);
+        //        tempY[Convert.ToInt32(trainArray["Stage"][i]) - 1] = 1;
+
+        //        trainStagingX[i] = tempX;
+        //        trainStagingY[i] = tempY;
+        //    }
+
+        //    var reg = LogisticMultiRegression.GetModelByTrainData(trainStagingX, trainStagingY);
+
+        //    return reg;
+
+        //}
+
+        private double[][] GetStageByAgeRegression(DataFrame trainArray)
+        {
+            var len = trainArray["Age"].Length;
+            var trainStagingX = new double[len][];
+            var trainStagingY = new int[len][];
+
+
+            for (int i = 0; i < len; i++)
+            {
+                var tempY = new int[4] { 0, 0, 0, 0 };
+                tempY[Convert.ToInt32(trainArray["Stage"][i]) - 1] = 1;
+
+                trainStagingX[i] = Tech.GetAgeGroup(trainArray["Age"][i]);
+                trainStagingY[i] = tempY;
+            }
+
+
+            var reg = LogisticMultiRegression.GetModelByTrainData(trainStagingX, trainStagingY);
+            return reg;
+
+        }
+
+        private double[] GetAggressivenessDistribution(DataFrame data)
+        {
+            var all_sum = new double[] { 0, 0, 0, 0 };
+            var agg_sum = new double[] { 0, 0, 0, 0 };
+
+            for (int i = 0; i < data["Age"].Length; i++)
+            {
+                all_sum[Convert.ToInt32(data["Stage"][i]) - 1] += 1;
+                agg_sum[Convert.ToInt32(data["Stage"][i]) - 1] += Convert.ToInt32(data["Aggressiveness"][i]);
+
+            }
+
+            agg_sum = agg_sum.Select((v, i) => v / all_sum[i]).ToArray();
+
+
+            return agg_sum;
+        }
+
 
         private void InitFrames()
         {
@@ -238,7 +481,7 @@ namespace MedicalModel
 
 
             TrainIncidence = DFCtoArray(TrainData.Columns["cases"] / TrainData.Columns["population"]);
-            TrainMortality = DFCtoArray(TrainData.Columns["deaths cancer"] / TrainData.Columns["population"]);
+            TrainMortality = DFCtoArray(TrainData.Columns["deaths cancer"] / (TrainData.Columns["population"]));
 
         }
 

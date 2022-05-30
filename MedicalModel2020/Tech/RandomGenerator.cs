@@ -19,6 +19,7 @@ namespace MedicalModel
         private LogNormal lnorm;
         private Exponential exp;
         private Normal norm;
+        private Weibull weibull;
         private ContinuousUniform uniform;
 
 
@@ -42,13 +43,19 @@ namespace MedicalModel
             {
                 exp = new Exponential(coefs[0]);
                 GenerateRandom = GenerateExp;
-                Sample = SampleLogNormal;
+                Sample = SampleExp;
             }
             else if (distributionType == "uniform")
             {
                 uniform = new ContinuousUniform(coefs[0],coefs[1]);
                 GenerateRandom = GenerateUn;
                 Sample = SampleUn;
+            }
+            else if (distributionType == "weibull")
+            {
+                weibull = new Weibull(coefs[0], coefs[1]);
+                GenerateRandom = GenerateWe;
+                Sample = SampleWe;
             }
 
         }
@@ -98,6 +105,18 @@ namespace MedicalModel
         {
             var res = new double[size];
             uniform.Samples(res);
+            return res;
+        }
+
+        private double GenerateWe()
+        {
+            return weibull.Sample();
+        }
+
+        private double[] SampleWe(int size)
+        {
+            var res = new double[size];
+            weibull.Samples(res);
             return res;
         }
     }

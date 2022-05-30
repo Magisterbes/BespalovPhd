@@ -56,6 +56,53 @@ namespace MedicalModel
         private Dictionary<string, Factor> factors = new Dictionary<string, Factor>();
         public Dictionary<string, Factor> Factors { get => factors; set => factors = value; }
 
+
+        public int CancerDeathAgeNoScreening
+        {
+            get
+            {
+                if (CurrentCancer == null || CurrentCancer.CancerDeathAgeInit> NaturalDeathAge)
+                {
+                    return -1;
+                }
+
+                if (CurrentCancer.IsCured)
+                {
+                    return (int)CurrentCancer.CancerDeathAgeCure;
+                }
+                
+                return (int)CurrentCancer.CancerDeathAgeInit;
+
+            }
+
+        }
+
+        public int CancerDeathAgeScreening
+        {
+            get
+            {
+                if (CurrentCancer == null || CurrentCancer.CancerDeathAgeInit > NaturalDeathAge)
+                {
+                    return -1;
+                }
+
+                if (!CurrentCancer.ScreeningFound)
+                {
+                    return CancerDeathAgeNoScreening;
+                }
+
+                if (CurrentCancer.IsScreeningCured)
+                {
+                    return (int)CurrentCancer.CancerDeathAgeScreen;
+                }
+
+                return (int)CurrentCancer.CancerDeathAgeInit;
+
+            }
+
+        }
+
+
         public DeathStatus DeathCause
         {
             get

@@ -31,7 +31,11 @@ namespace MedicalModel
         {
             if (_splash != null)
             {
-                _splash.BeginInvoke((MethodInvoker)delegate { _splash.Close(); });
+                _splash.BeginInvoke((MethodInvoker)delegate { 
+                    _splash.Close();
+                    _splash = default(T);
+                });
+                
             }
         }
 

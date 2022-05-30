@@ -27,6 +27,7 @@ namespace MedicalModel
             InitializeComponent();
 
             Environment.Init("parameters.txt");
+            Environment.LogInfo.ForEach(a=>AddLog(a));
             PrintParams();
 
             //Tests.HazardTest.Test(new LogLogisticHazard(-20, 6),this);
@@ -71,10 +72,8 @@ namespace MedicalModel
 
             var title = "Simulated Incidence Rates " + Title;
             ChartIt(title, SeriesChartType.Line, IncChart, data,x);
-
-            ChartIt("Train Diagnosis Rates", SeriesChartType.Line, IncChart, trinc, x);
             ChartIt("Simulated Diagnosis Rates", SeriesChartType.Line, IncChart, diagData, x);
-
+            ChartIt("Train Diagnosis Rates", SeriesChartType.Line, IncChart, trinc, x);
 
 
             IncChart.ChartAreas[0].AxisX.Title = "Age";
@@ -212,21 +211,21 @@ namespace MedicalModel
 
         void DrawSurvival()
         {
-            var cancer = Tech.CutByZero(Environment.Stats.AggStats[AggStatsType.Survival]);
-            var screening = Tech.CutByZero(Environment.Stats.AggStats[AggStatsType.SurvivalScreening]);
+            var cancer = Tech.CutByZero(Environment.Stats.AggStats[AggStatsType.Survival]).Take(20).ToArray();
+            var screening = Tech.CutByZero(Environment.Stats.AggStats[AggStatsType.SurvivalScreening]).Take(20).ToArray();
             var x = Enumerable.Range(0, screening.Length).Select(a => (double)a+0.1).ToArray();
 
             SurvChart.Series.Clear();
 
             var title = "No Screening";
-            ChartIt(title, SeriesChartType.StepLine, SurvChart, cancer);
+            ChartIt(title, SeriesChartType.Line, SurvChart, cancer);
 
             title = "Screening";
-            ChartIt(title, SeriesChartType.StepLine, SurvChart, screening,x);
+            ChartIt(title, SeriesChartType.Line, SurvChart, screening,x);
 
 
             SurvChart.ChartAreas[0].AxisX.Title = "Years";
-            SurvChart.ChartAreas[0].AxisY.Title = "Percent surviving";
+            SurvChart.ChartAreas[0].AxisY.Title = "Cause specific surviaval function";
         }
 
         private void bSim_Click(object sender, EventArgs e)
@@ -290,10 +289,9 @@ namespace MedicalModel
         {
             List<string> res = new List<string>();
 
-            res.Add("GrowthRateLimits:" + string.Join(", ", Environment.Params.GrowthRateLimits));
+            //res.Add("GrowthRateLimits:" + string.Join(", ", Environment.Params.GrowthRateLimits));
             res.Add("ProportionOfAggressive:" + string.Join(", ", Environment.Params.ProportionOfAggressive));
             res.Add("AggressivenessRateThreshold:" + string.Join(", ", Environment.Params.AggressivenessRateThreshold));
-            res.Add("StageDistirbution:" + string.Join(", ", Environment.Params.StageDistirbution));
             res.Add("DiagnoseHazard:" + string.Join(", ", Environment.Params.DiagnoseHazard.Constants));
             res.Add("CancerDeathHazard:" + string.Join(", ", Environment.Params.CancerDeathHazard.Constants));
 
@@ -358,6 +356,11 @@ namespace MedicalModel
         }
 
         private void MortChart_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DiagChart_Click(object sender, EventArgs e)
         {
 
         }

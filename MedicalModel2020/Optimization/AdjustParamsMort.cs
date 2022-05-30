@@ -19,10 +19,10 @@ namespace MedicalModel
             Environment.CurrentDate = 0;
             Environment.Start();
 
-            cancered = Environment.Population.Where(a => (a.CurrentCancer != null) && (a.CancerDeathAge < a.NaturalDeathAge)).ToList();
+            cancered = Environment.Population.Where(a => (a.CurrentCancer != null) && (a.CancerDeathAgeNoScreening != -1)).ToList();
 
             var nonCanceredDeaths = Environment.Population
-                .Where(a => (a.CurrentCancer == null) || (a.CancerDeathAge > a.NaturalDeathAge))
+                .Where(a => (a.CurrentCancer == null) || (a.CancerDeathAgeNoScreening ==-1))
                 .Select(a => (double)(a.NaturalDeathAge + a.DateBirth))
                 .ToList();
 
@@ -56,7 +56,7 @@ namespace MedicalModel
             GenerateSample();
             double[] initialPosition = GatherParameters();
 
-            var alg = new NelderMeadSimplex(1, 500);
+            var alg = new NelderMeadSimplex(0.1, 500);
             var initialVec = Vector.Build.DenseOfEnumerable(initialPosition);
 
             var objective = new ObjectiveFunctionMortLH(initialPosition.Length);
@@ -101,8 +101,8 @@ namespace MedicalModel
             var counter = 0;
 
             SetParam(ref Environment.Params.CancerDeathHazard.Constants, x, ref counter);
-            SetParam(ref Environment.Params.growthRateLimits, x, ref counter);
-            SetParam(ref Environment.Params.aggressivenessRateThreshold, x, ref counter);
+          //  SetParam(ref Environment.Params.growthRateLimits, x, ref counter);
+          //  SetParam(ref Environment.Params.aggressivenessRateThreshold, x, ref counter);
 
 
         }
@@ -129,8 +129,8 @@ namespace MedicalModel
             List<double> res = new List<double>();
 
             res.AddRange(Environment.Params.CancerDeathHazard.Constants);
-            res.AddRange(Environment.Params.GrowthRateLimits);
-            res.AddRange(new double[]{Environment.Params.AggressivenessRateThreshold});
+    //        res.AddRange(Environment.Params.GrowthRateLimits);
+     //       res.AddRange(new double[]{Environment.Params.AggressivenessRateThreshold});
 
             return res.ToArray();
         }

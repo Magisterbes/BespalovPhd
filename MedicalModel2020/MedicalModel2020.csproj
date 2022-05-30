@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MedicalModel</RootNamespace>
     <AssemblyName>MedicalModel</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -175,6 +175,7 @@
     <Compile Include="Simulation\Criteria.cs" />
     <Compile Include="Tech\Constants.cs" />
     <Compile Include="Simulation\Environment.cs" />
+    <Compile Include="Tech\LogisticMultiProgram.cs" />
     <Compile Include="Tech\RandomGenerator.cs" />
     <Compile Include="Tech\Hazard.cs" />
     <Compile Include="Tech\Distribution.cs" />
@@ -209,8 +210,18 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="Splash\Waitbar.resx" />
+    <None Include="data_agg.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data_agg_rus.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="data_ind.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -221,6 +232,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="staging_train_set.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="train_set.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

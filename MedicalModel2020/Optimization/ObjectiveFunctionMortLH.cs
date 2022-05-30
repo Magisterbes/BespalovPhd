@@ -48,11 +48,11 @@ namespace MedicalModel
         {
 
             var allDeaths = cancered
-                .Select(a => (double)(new double[]{a.NaturalDeathAge + a.DateBirth,a.CancerDeathAge + a.DateBirth}).Min())
+                .Select(a => (double)(new double[]{a.NaturalDeathAge + a.DateBirth,a.CancerDeathAgeNoScreening + a.DateBirth}).Min())
                 .ToList();
 
-            var cancerDeaths = cancered.Where(a => a.CancerDeathAge>a.NaturalDeathAge)
-                .Select(a => (double)(a.CancerDeathAge + a.DateBirth))
+            var cancerDeaths = cancered.Where(a => a.CancerDeathAgeNoScreening > a.NaturalDeathAge)
+                .Select(a => (double)(a.CancerDeathAgeNoScreening + a.DateBirth))
                 .Where(a => a <= 25)
                 .GroupBy(x => x)
                 .Select(x => new KeyValuePair<double, double>(x.Key, x.Count()))
@@ -76,13 +76,13 @@ namespace MedicalModel
 
             var L = new List<double>();
 
-            var len = new double[] {100.0, Environment.Params.TrainIncidence.Length};
+            var len = new double[] {100.0, Environment.Params.TrainMortality.Length};
 
             for (int i = 0; i < len.Min(); i++)
             {
                 
  
-                var inc = Convert.ToDouble(Environment.Params.TrainIncidence[i]);
+                var inc = Convert.ToDouble(Environment.Params.TrainMortality[i]);
                 var h = Environment.Params.DiagnoseHazard.GetValue((double) i);
 
                 L.Add(inc * Math.Log(h) + (1 - inc) * Math.Log(1 - h));

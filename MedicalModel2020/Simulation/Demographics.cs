@@ -27,7 +27,7 @@ namespace MedicalModel
             GetDiagnose(prms.DiagnoseHazard, p);
 
 
-            if (p.DiagnosisAge != Environment.Params.UnrealLifeLength)
+            if (p.DiagnosisAge != Environment.Params.UnrealLifeLength && p.DiagnosisAge< p.NaturalDeathAge)
             {
                 p.CurrentCancer = new Cancer(p);
                 // Environment.Stats.UpdateStats(StatsType.Inicdence, Environment.CurrentDate - (p.Age- p.IncidenceAge), p.IncidenceAge, p.Sex);

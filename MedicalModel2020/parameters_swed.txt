@@ -4,29 +4,26 @@ YearsToSimulate:30
 InitPopulation:1000000
 UnrealLifeLength:110
 
-TrainDataFilename: data_agg_rus.csv
+TrainDataFilename: data_agg.csv
 TrainStagingDataFilename: data_ind.csv
  
 #Natural History Parameters 
 
-#It's the hazard dependent on age -1@{val} - base. {age}@{val}
-DiagnoseHazard: piecewise, -1@-11.9;0@0.01;40@0.28;50@-0.11;60@-0.1;70@-0.1
-
-
-CancerDeathHazard: exp,1
-TimeBeforeDiagnosis: exp, 0.3
+#It's the hazard dependent on tumor size, not time.
+DiagnoseHazard: piecewise, -1@-11;0@0.01;40@0.3;50@-0.1;60@-0.1;70@-0.1
+CancerDeathHazard: exp,3.5
+TimeBeforeDiagnosis: weibull, 2,4
 TimeBeforeDiagnosisStageShift: 1,1.2,1.4,1.2
 
 
 ReoccurrenceProbability: 0.2
 TreatmentMortalityAdjustment: 1
-#GrowthRateLimits:  1.5, 4
+GrowthRateLimits:  1.5, 4
 AggressivenessRateThreshold: 0.2
 
 #Treatment Parameters
 
-# TreatmentEfficiency for stage 1,2,3,4
-TreatmentEfficiency: 0.7, 0.3, 0.2, 0.2
+TreatmentEfficiency: 0.95, 0.65, 0.35, 0.2
 Complications:0.1
 
 #Ages array 0-40,40-50,50-60,70-80,80+

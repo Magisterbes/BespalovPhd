@@ -403,3 +403,8 @@ I:\GitHub\BespalovPhd\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CoreCom
 I:\GitHub\BespalovPhd\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.CopyComplete
 I:\GitHub\BespalovPhd\MedicalModel2020\obj\Debug\MedicalModel.exe
 I:\GitHub\BespalovPhd\MedicalModel2020\obj\Debug\MedicalModel.pdb
+C:\Git\BespalovPhd\MedicalModel2020\bin\Debug\staging_train_set.csv
+C:\Git\BespalovPhd\MedicalModel2020\obj\Debug\MedicalModel2020.csproj.SuggestedBindingRedirects.cache
+C:\Git\BespalovPhd\MedicalModel2020\bin\Debug\data_agg.csv
+C:\Git\BespalovPhd\MedicalModel2020\bin\Debug\data_ind.csv
+C:\Git\BespalovPhd\MedicalModel2020\bin\Debug\data_agg_rus.csv
